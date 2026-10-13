@@ -245,10 +245,10 @@ export function LeadsTable({
                       <IconCell icon={<Phone className="w-3.5 h-3.5" />} value={lead.phone} onChange={(v) => onUpdateLead({ ...lead, phone: v })} className="w-[130px] font-mono-num" />
                     </td>
                     <td className="px-3 py-2">
-                      <EditableCell value={lead.nome_decisor} onChange={(v) => onUpdateLead({ ...lead, nome_decisor: v })} className="w-[130px]" />
+                      <span className="text-xs text-foreground">{lead.nome_decisor || '—'}</span>
                     </td>
                     <td className="px-3 py-2">
-                      <EditableCell value={lead.numero_decisor} onChange={(v) => onUpdateLead({ ...lead, numero_decisor: v })} className="w-[130px] font-mono-num" />
+                      <span className="text-xs font-mono-num text-foreground">{lead.numero_decisor || '—'}</span>
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap">
                       <span className="flex items-center gap-1.5 text-xs text-foreground">

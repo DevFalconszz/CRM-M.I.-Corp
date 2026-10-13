@@ -55,6 +55,8 @@ export function LeadModal({ lead, open, onClose, onUpdate }: Props) {
   const [whatsapp, setWhatsapp] = useState('');
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [descricao, setDescricao] = useState('');
+  const [nomeDecisor, setNomeDecisor] = useState('');
+  const [numeroDecisor, setNumeroDecisor] = useState('');
   const [reports, setReports] = useState<LeadReport[]>([]);
   const [newReport, setNewReport] = useState('');
   const [expandedReport, setExpandedReport] = useState<string | null>(null);
@@ -66,6 +68,8 @@ export function LeadModal({ lead, open, onClose, onUpdate }: Props) {
       setWhatsapp(lead.whatsapp_group);
       setSelectedDates(lead.meeting_dates.map(d => new Date(d)));
       setDescricao(lead.descricao || '');
+      setNomeDecisor(lead.nome_decisor || '');
+      setNumeroDecisor(lead.numero_decisor || '');
       setNewReport('');
       setExpandedReport(null);
       setEditingReport(null);
@@ -85,6 +89,8 @@ export function LeadModal({ lead, open, onClose, onUpdate }: Props) {
       whatsapp_group: whatsapp,
       meeting_dates: selectedDates.map(d => d.toISOString()),
       descricao,
+      nome_decisor: nomeDecisor,
+      numero_decisor: numeroDecisor,
     });
     onClose();
   };
@@ -204,8 +210,12 @@ export function LeadModal({ lead, open, onClose, onUpdate }: Props) {
               <CardContent className="p-4 space-y-3">
                 <SectionTitle icon={User}>Decisor</SectionTitle>
                 <div className="grid grid-cols-1 gap-3 pt-1">
-                  <Field label="Nome"><FieldValue value={lead.nome_decisor} /></Field>
-                  <Field label="Número"><FieldValue value={lead.numero_decisor} monospace /></Field>
+                  <Field label="Nome">
+                    <Input value={nomeDecisor} onChange={(e) => setNomeDecisor(e.target.value)} className="mt-1 bg-background border-input focus:border-gold-500 focus:ring-gold-500 text-sm" placeholder="Nome do decisor..." />
+                  </Field>
+                  <Field label="Número">
+                    <Input value={numeroDecisor} onChange={(e) => setNumeroDecisor(e.target.value)} className="mt-1 bg-background border-input focus:border-gold-500 focus:ring-gold-500 text-sm font-mono-num" placeholder="(00) 00000-0000..." />
+                  </Field>
                 </div>
               </CardContent>
             </Card>

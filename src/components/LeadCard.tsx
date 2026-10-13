@@ -45,7 +45,7 @@ export function LeadCard({ lead, onOpenLead, onUpdateLead }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {([
             ['name', 'Nome'], ['category', 'Nicho'], ['city', 'Cidade'], ['state', 'UF'],
-            ['phone', 'Telefone'], ['nome_decisor', 'Nome Decisor'], ['numero_decisor', 'Número Decisor'],
+            ['phone', 'Telefone'],
             ['descricao', 'Descrição'], ['website', 'Website'],
           ] as [keyof Lead, string][]).map(([key, label]) => (
             <div key={key} className={key === 'descricao' || key === 'website' ? 'sm:col-span-2' : ''}>

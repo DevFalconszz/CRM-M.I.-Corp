@@ -10,7 +10,8 @@ import { searchLeadsLocal, isLocalServerRunning } from '@/lib/opencode-api';
 import { searchBusinesses } from '@/lib/firecrawl-api';
 import { detectAds } from '@/lib/detect-ads';
 import { enrichPhones } from '@/lib/enrich-phone';
-import { loadLeads, insertLead, loadAllLeadNames } from '@/lib/leads-store';
+import { insertLead } from '@/lib/leads-store';
+import { loadSavedLeadsIndex, isResultSaved, filterResultsBySaved, nameKey } from '@/lib/lead-dedup';
 import { Lead } from '@/lib/types';
 import { searchLeadsPaged } from '@/lib/search-paged';
 import { Search, Plus, Loader2, Globe, ExternalLink, AlertTriangle, CheckCircle, Zap, Wifi, WifiOff, Megaphone, Instagram, User } from 'lucide-react';
@@ -35,27 +36,31 @@ export default function Prospecting() {
   const [results, setResults] = useState<StructuredResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [addingIndex, setAddingIndex] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
   const [localMode, setLocalMode] = useState(false);
 
   useEffect(() => {
     isLocalServerRunning().then(running => setLocalMode(running));
   }, []);
 
-  // Restaura a última pesquisa ao voltar para a página (não some ao trocar de aba/recarregar).
+  // Restaura a última pesquisa ao voltar para a página (não some ao trocar de aba/recarregar),
+  // mas remove desta lista qualquer resultado que já tenha sido salvo nos leads.
   useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem(RESULTS_KEY);
-      if (raw) {
+    (async () => {
+      try {
+        const raw = sessionStorage.getItem(RESULTS_KEY);
+        if (!raw) return;
         const saved = JSON.parse(raw) as PersistedResults;
-        if (Array.isArray(saved.results) && saved.results.length > 0) {
-          setNiche(saved.niche || '');
-          setCity(saved.city || '');
-          setResults(saved.results);
-        }
+        if (!Array.isArray(saved.results) || saved.results.length === 0) return;
+        setNiche(saved.niche || '');
+        setCity(saved.city || '');
+        const index = await loadSavedLeadsIndex();
+        const kept = filterResultsBySaved(saved.results, index);
+        setResults(kept);
+      } catch {
+        // ignora dados corrompidos
       }
-    } catch {
-      // ignora dados corrompidos
-    }
+    })();
   }, []);
 
   // Persiste os resultados sempre que forem atualizados (nova busca sobrescreve).
@@ -91,17 +96,10 @@ export default function Prospecting() {
     });
   };
 
-  // Busca paginada com deduplicação: filtra leads já salvos e completa até X novos.
+  // Busca paginada com deduplicação assertiva: resultados que já estão nos leads
+  // (por nome, telefone, site, mapa ou place id) são filtrados antes de aparecer.
   const searchWithDedup = async (niche: string, city: string, targetCount: number = 20): Promise<StructuredResult[]> => {
-    const savedNames = new Set<string>();
-    try {
-      const global = await loadAllLeadNames();
-      global.forEach((n) => savedNames.add(n));
-    } catch (e) {
-      console.warn('Falha ao carregar leads globais para dedup, usando apenas locais:', e);
-      const savedLeads = await loadLeads();
-      savedLeads.forEach((l) => savedNames.add(l.name.trim().toLowerCase()));
-    }
+    const index = await loadSavedLeadsIndex();
     const newResults: StructuredResult[] = [];
     let page = 1;
     const numPerPage = 20;
@@ -112,9 +110,10 @@ export default function Prospecting() {
       if (!res.success || !res.data || res.data.length === 0) break;
 
       for (const r of res.data) {
-        const nameKey = (r.name || '').trim().toLowerCase();
-        if (!nameKey || savedNames.has(nameKey)) continue; // já salvo
-        if (newResults.some((nr) => nr.name.trim().toLowerCase() === nameKey)) continue; // duplicado na mesma busca
+        const key = nameKey(r.name || '');
+        if (!key) continue;
+        if (isResultSaved(r, index)) continue; // já salvo (qualquer critério)
+        if (newResults.some((nr) => nameKey(nr.name || '') === key)) continue; // duplicado na mesma busca
         // Infere UF se não veio
         const enriched = {
           ...r,
@@ -139,8 +138,14 @@ export default function Prospecting() {
       if (localMode) {
         const res = await searchLeadsLocal(niche, city);
         if (res.success && res.data && res.data.length > 0) {
-          setResults(await enrichResults(res.data));
-          toast.success(`${res.data.length} resultados encontrados!`);
+          const index = await loadSavedLeadsIndex();
+          const kept = filterResultsBySaved(res.data, index);
+          if (kept.length > 0) {
+            setResults(await enrichResults(kept));
+            toast.success(`${kept.length} resultados encontrados!`);
+          } else {
+            toast.info('Todos os resultados já estão salvos ou nenhum encontrado.');
+          }
         } else {
           toast.error(res.error || 'Nenhum resultado encontrado.');
         }
@@ -165,34 +170,40 @@ export default function Prospecting() {
   };
 
   const handleAddLead = async (result: StructuredResult) => {
-    const toStr = (v: any) => v != null ? String(v) : '';
+    if (saving) return;
+    setSaving(true);
+    try {
+      const toStr = (v: any) => v != null ? String(v) : '';
 
-    const leadCity = toStr(result.city) || city;
-    const leadState = toStr(result.state) || inferUf(leadCity) || inferUf(city);
-    const responsavel = user?.user_metadata?.full_name || user?.email || '';
+      const leadCity = toStr(result.city) || city;
+      const leadState = toStr(result.state) || inferUf(leadCity) || inferUf(city);
+      const responsavel = user?.user_metadata?.full_name || user?.email || '';
 
-    const lead: Omit<Lead, 'id'> = {
-      name: toStr(result.name) || 'Sem nome', title: toStr(result.title),
-      category: toStr(result.category) || niche, address: toStr(result.address),
-      city: leadCity, state: leadState,
-      phone: toStr(result.phone), website: toStr(result.website),
-      google_maps_url: toStr(result.google_maps_url), rating: toStr(result.rating),
-      reviews_count: toStr(result.reviews_count), instagram: toStr(result.instagram),
-      responsavel: responsavel, descricao: '', status: 'analise_pendente',
-      whatsapp_group: '', meeting_dates: [], nome_decisor: '', numero_decisor: '',
-      has_ads: result.has_ads ?? null,
-      meta_has_ads: result.meta_has_ads ?? null,
-      google_ads_count: result.google_ads_count ?? 0,
-      source: 'prospeccao',
-    };
+      const lead: Omit<Lead, 'id'> = {
+        name: toStr(result.name) || 'Sem nome', title: toStr(result.title),
+        category: toStr(result.category) || niche, address: toStr(result.address),
+        city: leadCity, state: leadState,
+        phone: toStr(result.phone), website: toStr(result.website),
+        google_maps_url: toStr(result.google_maps_url), rating: toStr(result.rating),
+        reviews_count: toStr(result.reviews_count), instagram: toStr(result.instagram),
+        responsavel: responsavel, descricao: '', status: 'analise_pendente',
+        whatsapp_group: '', meeting_dates: [], nome_decisor: '', numero_decisor: '',
+        has_ads: result.has_ads ?? null,
+        meta_has_ads: result.meta_has_ads ?? null,
+        google_ads_count: result.google_ads_count ?? 0,
+        source: 'prospeccao',
+      };
 
-    const inserted = await insertLead(lead);
-    if (inserted) {
-      toast.success(`"${result.name}" adicionado aos leads!`);
-      setAddingIndex(null);
-      setResponsavel('');
-    } else {
-      toast.error('Erro ao adicionar lead.');
+      const inserted = await insertLead(lead);
+      if (inserted) {
+        toast.success(`"${result.name}" adicionado aos leads!`);
+        setAddingIndex(null);
+        setResponsavel('');
+      } else {
+        toast.error('Erro ao adicionar lead.');
+      }
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -405,8 +416,8 @@ export default function Prospecting() {
                 <span className="text-muted-foreground">Responsável automático:</span>
                 <span className="font-medium truncate">{user?.user_metadata?.full_name || user?.email || ''}</span>
               </div>
-              <Button className="w-full h-12 rounded-xl text-sm font-semibold bg-gold-500 text-black hover:bg-gold-600" onClick={() => handleAddLead(results[addingIndex])}>
-                <Plus className="w-4 h-4 mr-2" />Adicionar Lead
+              <Button className="w-full h-12 rounded-xl text-sm font-semibold bg-gold-500 text-black hover:bg-gold-600" onClick={() => handleAddLead(results[addingIndex])} disabled={saving}>
+                <Plus className="w-4 h-4 mr-2" />{saving ? 'Adicionando...' : 'Adicionar Lead'}
               </Button>
             </div>
           )}

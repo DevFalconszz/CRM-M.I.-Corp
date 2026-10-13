@@ -67,8 +67,32 @@ export async function loadLeads(): Promise<Lead[]> {
   return (data || []).map(rowToLead);
 }
 
+function escapeLike(value: string): string {
+  return value.replace(/[\\%_]/g, (m) => '\\' + m);
+}
+
+/** Busca um lead já existente com o mesmo nome (case/whitespace insensível). */
+async function findLeadByName(name: string): Promise<Lead | null> {
+  const trimmed = (name || '').trim();
+  if (!trimmed) return null;
+  const { data, error } = await supabase
+    .from('leads')
+    .select('*')
+    .ilike('name', escapeLike(trimmed))
+    .limit(1);
+  if (error) { console.error('findLeadByName error:', error); return null; }
+  if (!data || data.length === 0) return null;
+  return rowToLead(data[0]);
+}
+
 export async function insertLead(lead: Omit<Lead, 'id'>): Promise<Lead | null> {
   const { data: { user } } = await supabase.auth.getUser();
+
+  // Duplicado já existe? Retorna o existente em vez de inserir de novo
+  // (evita duplicar o mesmo negócio por clique duplo ou nova busca repetida).
+  const existing = await findLeadByName(lead.name);
+  if (existing) return existing;
+
   const { data, error } = await supabase.from('leads').insert({
     name: lead.name, title: lead.title, category: lead.category, address: lead.address,
     city: lead.city, state: lead.state, phone: lead.phone, website: lead.website,
@@ -82,13 +106,29 @@ export async function insertLead(lead: Omit<Lead, 'id'>): Promise<Lead | null> {
     source: lead.source ?? null,
     user_id: user?.id,
   }).select().single();
-  if (error) { console.error('Error inserting lead:', error); return null; }
+
+  if (error) {
+    if (error.code === '23505') {
+      // Corrida: outro insert criou o mesmo nome no meio tempo. Retorna o existente.
+      return findLeadByName(lead.name);
+    }
+    console.error('Error inserting lead:', error);
+    return null;
+  }
   return rowToLead(data);
 }
 
 export async function insertLeads(leads: Omit<Lead, 'id'>[]): Promise<Lead[]> {
   const { data: { user } } = await supabase.auth.getUser();
-  const { data, error } = await supabase.from('leads').insert(leads.map(l => ({
+  // Evita duplicados no mesmo lote (mesmo nome) antes do insert.
+  const seen = new Set<string>();
+  const unique = leads.filter((l) => {
+    const key = (l.name || '').trim().toLowerCase();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  const { data, error } = await supabase.from('leads').insert(unique.map(l => ({
     name: l.name, title: l.title, category: l.category, address: l.address,
     city: l.city, state: l.state, phone: l.phone, website: l.website,
     google_maps_url: l.google_maps_url, rating: l.rating, reviews_count: l.reviews_count,
