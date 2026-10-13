@@ -1,8 +1,9 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import { ClipboardList, Radar, BarChart3, Gauge, FolderLock, KeyRound, LogOut, X } from 'lucide-react';
+import { ClipboardList, Radar, BarChart3, Gauge, FolderLock, KeyRound, LogOut, X, Sun, Moon } from 'lucide-react';
 import { isLocal } from '@/lib/env-check';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 import { ChangePasswordForm } from '@/components/ChangePasswordForm';
 
@@ -24,6 +25,7 @@ const tabs: Tab[] = [
 export function AppHeader() {
   const location = useLocation();
   const { signOut, user, role } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [pwOpen, setPwOpen] = useState(false);
 
   const visibleTabs = tabs.filter((tab) => !tab.roles || (role && tab.roles.includes(role)));
@@ -42,6 +44,16 @@ export function AppHeader() {
                 LOCAL
               </span>
             )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleTheme}
+              className="md:hidden text-muted-foreground hover:text-foreground hover:bg-accent h-9 px-3"
+              title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+              aria-label="Alternar tema"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -80,6 +92,16 @@ export function AppHeader() {
             })}
           </nav>
           <div className="hidden md:flex items-center gap-3 ml-4 pl-4 border-l border-border">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleTheme}
+              className="text-muted-foreground hover:text-foreground hover:bg-accent h-9 px-3"
+              title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+              aria-label="Alternar tema"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </Button>
             <Button
               variant="ghost"
               size="sm"

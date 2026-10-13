@@ -1,9 +1,9 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { applyTheme, getStoredTheme } from "./hooks/use-theme";
 
-// Tema branco pastel como padrão da aplicação (identidade M.I.).
-// O tema escuro segue disponível aplicando a classe "dark" no <html>.
-document.documentElement.classList.remove("dark");
+// Aplica o tema salvo (padrão: escuro) antes de renderizar, evitando flash.
+applyTheme(getStoredTheme());
 
 createRoot(document.getElementById("root")!).render(<App />);
