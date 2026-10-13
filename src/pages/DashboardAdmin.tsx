@@ -22,6 +22,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { initials } from '@/lib/avatars';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -910,6 +912,7 @@ export default function DashboardAdmin() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border bg-accent/50">
+                        <th className="px-3 py-2.5 text-center font-semibold text-xs text-muted-foreground">Foto</th>
                         <th className="px-3 py-2.5 text-left font-semibold text-xs text-muted-foreground">Nome</th>
                         <th className="px-3 py-2.5 text-left font-semibold text-xs text-muted-foreground">Email</th>
                         <th className="px-3 py-2.5 text-center font-semibold text-xs text-muted-foreground">Função</th>
@@ -925,6 +928,14 @@ export default function DashboardAdmin() {
                     <tbody>
                       {users.map((u) => (
                         <tr key={u.id} className="border-b border-border hover:bg-accent/40">
+                          <td className="px-3 py-2 text-center">
+                            <Avatar className="h-9 w-9 border border-border">
+                              {u.avatar_url ? <AvatarImage src={u.avatar_url} alt={u.name || u.email} /> : null}
+                              <AvatarFallback className="bg-gold-500 text-black text-xs font-bold">
+                                {initials(u.name || u.email) || '?'}
+                              </AvatarFallback>
+                            </Avatar>
+                          </td>
                           <td className="px-3 py-2 font-medium text-foreground">{u.name || '—'}</td>
                           <td className="px-3 py-2 text-foreground">{u.email}</td>
                           <td className="px-3 py-2 text-center">
@@ -981,7 +992,7 @@ export default function DashboardAdmin() {
                       ))}
                       {users.length === 0 && (
                         <tr>
-                          <td colSpan={10} className="px-3 py-8 text-center text-muted-foreground">
+                          <td colSpan={11} className="px-3 py-8 text-center text-muted-foreground">
                             Nenhum usuário cadastrado.
                           </td>
                         </tr>
