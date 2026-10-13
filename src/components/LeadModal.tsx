@@ -146,10 +146,10 @@ export function LeadModal({ lead, open, onClose, onUpdate }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
-      <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto rounded-2xl">
+      <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto rounded-2xl p-4 sm:p-6">
         {/* Cabeçalho do lead */}
-        <div className="flex items-center gap-4 pb-4 border-b border-border">
-          <span className={`w-14 h-14 shrink-0 rounded-full flex items-center justify-center text-lg font-bold ${avatarColor(lead.name)}`}>
+        <div className="flex items-center gap-3 sm:gap-4 pb-4 border-b border-border">
+          <span className={`w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-full flex items-center justify-center text-base sm:text-lg font-bold ${avatarColor(lead.name)}`}>
             {initials(lead.name)}
           </span>
           <div className="min-w-0 flex-1">
@@ -165,7 +165,7 @@ export function LeadModal({ lead, open, onClose, onUpdate }: Props) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4">
           {/* Coluna esquerda */}
           <div className="space-y-4">
             <Card className="rounded-xl border-border/70">
@@ -249,7 +249,7 @@ export function LeadModal({ lead, open, onClose, onUpdate }: Props) {
             <Card className="rounded-xl border-border/70">
               <CardContent className="p-4 space-y-3">
                 <SectionTitle icon={CalendarDays}>Agendar Reuniões</SectionTitle>
-                <Calendar mode="single" selected={undefined} onSelect={handleDateSelect} modifiers={{ booked: selectedDates }} modifiersClassNames={{ booked: 'bg-gold-500 text-black rounded-md' }} numberOfMonths={1} className={cn("p-2 pointer-events-auto border border-border rounded-md min-w-[252px]")} />
+                <Calendar mode="single" selected={undefined} onSelect={handleDateSelect} modifiers={{ booked: selectedDates }} modifiersClassNames={{ booked: 'bg-gold-500 text-black rounded-md' }} numberOfMonths={1} className={cn("p-2 pointer-events-auto border border-border rounded-md w-full min-w-0")} />
                 {selectedDates.length > 0 && (
                   <div className="mt-2 space-y-1">
                     <p className="text-xs text-muted-foreground font-medium">Reuniões agendadas:</p>

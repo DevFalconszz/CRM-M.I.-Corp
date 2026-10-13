@@ -370,7 +370,7 @@ export default function DashboardAdmin() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="max-w-[1600px] mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-[1600px] mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
@@ -397,9 +397,9 @@ export default function DashboardAdmin() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3">
           <Card className="border-border bg-card shadow-sm">
-            <CardContent className="pt-5">
+            <CardContent className="p-3 sm:p-5">
               <div className="flex items-center gap-2 text-muted-foreground text-xs">
                 <Inbox className="w-4 h-4" /> Total de Leads
               </div>
@@ -407,7 +407,7 @@ export default function DashboardAdmin() {
             </CardContent>
           </Card>
           <Card className="border-border bg-card shadow-sm">
-            <CardContent className="pt-5">
+            <CardContent className="p-3 sm:p-5">
               <div className="flex items-center gap-2 text-muted-foreground text-xs">
                 <Users className="w-4 h-4" /> Usuários com Leads
               </div>
@@ -415,7 +415,7 @@ export default function DashboardAdmin() {
             </CardContent>
           </Card>
           <Card className="border-border bg-card shadow-sm">
-            <CardContent className="pt-5">
+            <CardContent className="p-3 sm:p-5">
               <div className="flex items-center gap-2 text-muted-foreground text-xs">
                 <TrendingUp className="w-4 h-4" /> Leads no Funil
               </div>
@@ -423,7 +423,7 @@ export default function DashboardAdmin() {
             </CardContent>
           </Card>
           <Card className="border-border bg-card shadow-sm">
-            <CardContent className="pt-5">
+            <CardContent className="p-3 sm:p-5">
               <div className="flex items-center gap-2 text-muted-foreground text-xs">
                 <Target className="w-4 h-4" /> Vendas Fechadas
               </div>
@@ -438,7 +438,7 @@ export default function DashboardAdmin() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-semibold text-foreground">Leads por Usuário</CardTitle>
               </CardHeader>
-              <CardContent className="h-72">
+              <CardContent className="h-[220px] sm:h-[280px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={byUser} layout="vertical" margin={{ left: 20, right: 12 }}>
                     <XAxis type="number" allowDecimals={false} stroke="#888" fontSize={11} />
@@ -454,7 +454,7 @@ export default function DashboardAdmin() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-semibold text-foreground">Leads por Status</CardTitle>
               </CardHeader>
-              <CardContent className="h-72">
+              <CardContent className="h-[220px] sm:h-[280px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart margin={{ top: 24, right: 12, bottom: 4, left: 12 }}>
                     <Pie data={byStatus} dataKey="value" nameKey="name" outerRadius={74} label={{ fontSize: 11 }}>
@@ -740,7 +740,7 @@ export default function DashboardAdmin() {
                 {apiSummary && (
                   <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
                     <Card className="border-border bg-card shadow-sm">
-                      <CardContent className="pt-5">
+                      <CardContent className="p-3 sm:p-5">
                         <div className="flex items-center gap-2 text-muted-foreground text-xs">
                           <Activity className="w-4 h-4" /> Chamadas Totais
                         </div>
@@ -748,7 +748,7 @@ export default function DashboardAdmin() {
                       </CardContent>
                     </Card>
                     <Card className="border-border bg-card shadow-sm">
-                      <CardContent className="pt-5">
+                      <CardContent className="p-3 sm:p-5">
                         <div className="flex items-center gap-2 text-muted-foreground text-xs">
                           <TrendingUp className="w-4 h-4" /> Sucesso
                         </div>
@@ -756,7 +756,7 @@ export default function DashboardAdmin() {
                       </CardContent>
                     </Card>
                     <Card className="border-border bg-card shadow-sm">
-                      <CardContent className="pt-5">
+                      <CardContent className="p-3 sm:p-5">
                         <div className="flex items-center gap-2 text-muted-foreground text-xs">
                           <Key className="w-4 h-4" /> Taxa de Sucesso
                         </div>
@@ -764,7 +764,7 @@ export default function DashboardAdmin() {
                       </CardContent>
                     </Card>
                     <Card className="border-border bg-card shadow-sm">
-                      <CardContent className="pt-5">
+                      <CardContent className="p-3 sm:p-5">
                         <div className="flex items-center gap-2 text-muted-foreground text-xs">
                           <Key className="w-4 h-4" /> Chave Principal
                         </div>
@@ -772,7 +772,7 @@ export default function DashboardAdmin() {
                       </CardContent>
                     </Card>
                     <Card className="border-border bg-card shadow-sm">
-                      <CardContent className="pt-5">
+                      <CardContent className="p-3 sm:p-5">
                         <div className="flex items-center gap-2 text-muted-foreground text-xs">
                           <Key className="w-4 h-4" /> Chave Fallback
                         </div>
