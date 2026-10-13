@@ -14,6 +14,7 @@ import DashboardAdmin from "./pages/DashboardAdmin.tsx";
 import DashboardTM from "./pages/DashboardTM.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Documents from "./pages/Documents.tsx";
+import Profile from "./pages/Profile.tsx";
 import { AppHeader } from "./components/AppHeader.tsx";
 import { DailyReportGate } from "./components/DailyReportGate.tsx";
 import { AppUpdateWatcher } from "./components/AppUpdateWatcher.tsx";
@@ -76,6 +77,7 @@ const App = () => (
                         </AdminRoute>
                       }
                     />
+                    <Route path="/perfil" element={<Profile />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </ProtectedRoute>

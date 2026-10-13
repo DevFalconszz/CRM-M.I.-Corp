@@ -1,21 +1,21 @@
-import { NavLink, useLocation } from 'react-router-dom';
-import { useState } from 'react';
-import { ClipboardList, Radar, BarChart3, Gauge, FolderLock, KeyRound, LogOut, X, Sun, Moon } from 'lucide-react';
+import { NavLink, useLocation, Link } from 'react-router-dom';
+import { Radar, BarChart3, Gauge, FolderLock, Sun, Moon, LogOut } from 'lucide-react';
 import { isLocal } from '@/lib/env-check';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
-import { ChangePasswordForm } from '@/components/ChangePasswordForm';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { initials } from '@/lib/avatars';
 
 interface Tab {
   to: string;
   label: string;
-  icon: typeof ClipboardList;
+  icon: typeof Radar;
   roles?: Array<'admin' | 'tm'>;
 }
 
 const tabs: Tab[] = [
-  { to: '/', label: 'Gestão de Leads', icon: ClipboardList, roles: ['admin', 'sdr'] },
+  { to: '/', label: 'Gestão de Leads', icon: Radar, roles: ['admin', 'sdr'] },
   { to: '/prospectar', label: 'Prospectar', icon: Radar, roles: ['admin', 'sdr'] },
   { to: '/dashboard', label: 'Dashboard', icon: BarChart3, roles: ['admin'] },
   { to: '/documentos', label: 'Documentos', icon: FolderLock, roles: ['admin'] },
@@ -26,9 +26,10 @@ export function AppHeader() {
   const location = useLocation();
   const { signOut, user, role } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const [pwOpen, setPwOpen] = useState(false);
 
   const visibleTabs = tabs.filter((tab) => !tab.roles || (role && tab.roles.includes(role)));
+  const displayName = (user?.user_metadata?.full_name as string) || user?.email || '';
+  const avatarUrl = (user?.user_metadata?.avatar_url as string) || '';
 
   return (
     <header className="border-b border-border bg-card text-foreground sticky top-0 z-30">
@@ -55,12 +56,20 @@ export function AppHeader() {
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
             <Button
+              asChild
               variant="ghost"
               size="sm"
-              onClick={() => setPwOpen(true)}
               className="md:hidden text-muted-foreground hover:text-foreground hover:bg-accent h-9 px-3"
+              title="Meu perfil"
             >
-              <KeyRound className="w-4 h-4" />
+              <Link to="/perfil">
+                <Avatar className="h-7 w-7 border border-border">
+                  {avatarUrl ? <AvatarImage src={avatarUrl} alt={displayName} /> : null}
+                  <AvatarFallback className="bg-gold-500 text-black text-xs font-bold">
+                    {initials(displayName) || '?'}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
             </Button>
             <Button
               variant="ghost"
@@ -91,7 +100,7 @@ export function AppHeader() {
               );
             })}
           </nav>
-          <div className="hidden md:flex items-center gap-3 ml-4 pl-4 border-l border-border">
+          <div className="hidden md:flex items-center gap-3 ml-2 pl-4 border-l border-border">
             <Button
               variant="ghost"
               size="sm"
@@ -103,18 +112,24 @@ export function AppHeader() {
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
             <Button
+              asChild
               variant="ghost"
               size="sm"
-              onClick={() => setPwOpen(true)}
               className="text-muted-foreground hover:text-foreground hover:bg-accent h-9 px-3"
-              title="Alterar senha"
+              title="Meu perfil"
             >
-              <KeyRound className="w-4 h-4" />
-              <span className="hidden xl:inline ml-1">Alterar senha</span>
+              <Link to="/perfil" className="flex items-center gap-2">
+                <Avatar className="h-8 w-8 border border-border">
+                  {avatarUrl ? <AvatarImage src={avatarUrl} alt={displayName} /> : null}
+                  <AvatarFallback className="bg-gold-500 text-black text-xs font-bold">
+                    {initials(displayName) || '?'}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="hidden lg:inline text-xs text-muted-foreground max-w-[160px] truncate">
+                  {displayName}
+                </span>
+              </Link>
             </Button>
-            <span className="text-xs text-muted-foreground hidden sm:inline whitespace-nowrap">
-              {user?.user_metadata?.full_name || user?.email || ''}
-            </span>
             <Button
               variant="ghost"
               size="sm"
@@ -127,31 +142,6 @@ export function AppHeader() {
           </div>
         </div>
       </div>
-
-      {pwOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-          onClick={() => setPwOpen(false)}
-        >
-          <div
-            className="w-full max-w-md rounded-2xl border border-border bg-card text-foreground shadow-2xl p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Alterar senha</h3>
-              <button
-                type="button"
-                onClick={() => setPwOpen(false)}
-                aria-label="Fechar"
-                className="text-muted-foreground hover:text-foreground rounded-lg p-1"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <ChangePasswordForm onSuccess={() => setPwOpen(false)} />
-          </div>
-        </div>
-      )}
     </header>
   );
 }

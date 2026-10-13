@@ -4,6 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 
 export type UserRole = 'admin' | 'sdr' | 'tm';
 
+export interface ProfileUpdate {
+  full_name?: string;
+  avatar_url?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -12,6 +17,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: AuthError | null }>;
   updatePassword: (password: string) => Promise<{ error: AuthError | null }>;
+  updateProfile: (data: ProfileUpdate) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -59,6 +65,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
+  const updateProfile = async (data: ProfileUpdate) => {
+    const { error } = await supabase.auth.updateUser({ data });
+    return { error };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
@@ -95,7 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, role, signIn, signUp, updatePassword, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, role, signIn, signUp, updatePassword, updateProfile, signOut }}>
       {children}
     </AuthContext.Provider>
   );
