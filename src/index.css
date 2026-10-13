@@ -6,68 +6,71 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 4%;
+    /* ── Tema branco pastel (identidade M.I.) ───────────────────────────
+       Superfícies brancas aquecidas, dourado como cor de marca e estados
+       em tons pastel suaves, sem preto puro em nenhum ponto.               */
+    --background: 40 33% 99%;
+    --foreground: 30 12% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 4%;
+    --card-foreground: 30 12% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 4%;
+    --popover-foreground: 30 12% 14%;
 
-    --primary: 42 100% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 40 92% 50%;
+    --primary-foreground: 30 25% 10%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 4%;
+    --secondary: 40 30% 96%;
+    --secondary-foreground: 30 12% 20%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 40 30% 96%;
+    --muted-foreground: 30 8% 42%;
 
-    --accent: 42 100% 95%;
-    --accent-foreground: 42 100% 35%;
+    --accent: 42 100% 96%;
+    --accent-foreground: 35 72% 30%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 42 100% 50%;
+    --border: 38 28% 90%;
+    --input: 38 28% 90%;
+    --ring: 40 92% 50%;
 
     --radius: 0.75rem;
 
-    --status-pending: 42 100% 89%;
-    --status-pending-text: 42 100% 25%;
-    --status-pending-border: 42 100% 72%;
+    --status-pending: 42 100% 93%;
+    --status-pending-text: 36 68% 31%;
+    --status-pending-border: 42 90% 78%;
 
-    --status-analyzing: 42 100% 89%;
-    --status-analyzing-text: 42 100% 25%;
-    --status-analyzing-border: 42 100% 72%;
+    --status-analyzing: 25 100% 94%;
+    --status-analyzing-text: 22 72% 38%;
+    --status-analyzing-border: 25 88% 80%;
 
-    --status-followup: 42 100% 89%;
-    --status-followup-text: 42 100% 25%;
-    --status-followup-border: 42 100% 72%;
+    --status-followup: 199 90% 95%;
+    --status-followup-text: 201 68% 33%;
+    --status-followup-border: 199 82% 80%;
 
-    --status-meeting: 42 100% 89%;
-    --status-meeting-text: 42 100% 25%;
-    --status-meeting-border: 42 100% 72%;
+    --status-meeting: 258 90% 96%;
+    --status-meeting-text: 258 52% 45%;
+    --status-meeting-border: 258 76% 88%;
 
-    --status-refused: 0 72% 93%;
-    --status-refused-text: 0 72% 40%;
-    --status-refused-border: 0 70% 65%;
+    --status-refused: 0 85% 96%;
+    --status-refused-text: 0 62% 44%;
+    --status-refused-border: 0 78% 86%;
 
-    --status-closed: 42 100% 89%;
-    --status-closed-text: 42 100% 25%;
-    --status-closed-border: 42 100% 72%;
+    --status-closed: 152 52% 94%;
+    --status-closed-text: 158 64% 28%;
+    --status-closed-border: 152 52% 80%;
 
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 42 100% 50%;
-    --sidebar-primary-foreground: 0 0% 4%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 42 100% 50%;
-    --sidebar-border: 0 0% 12%;
-    --sidebar-ring: 42 100% 50%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 30 12% 20%;
+    --sidebar-primary: 40 92% 50%;
+    --sidebar-primary-foreground: 30 25% 10%;
+    --sidebar-accent: 42 100% 96%;
+    --sidebar-accent-foreground: 35 72% 30%;
+    --sidebar-border: 38 28% 90%;
+    --sidebar-ring: 40 92% 50%;
   }
 
   .dark {

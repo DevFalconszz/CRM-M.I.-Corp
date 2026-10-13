@@ -38,7 +38,7 @@ export function AppHeader() {
               CRM MI
             </span>
             {isLocal() && (
-              <span className="text-[10px] font-mono bg-gold-500/20 text-gold-400 px-2 py-0.5 rounded-full border border-gold-500/30">
+              <span className="text-[10px] font-mono bg-gold-500/20 text-gold-700 dark:text-gold-400 px-2 py-0.5 rounded-full border border-gold-500/30">
                 LOCAL
               </span>
             )}
