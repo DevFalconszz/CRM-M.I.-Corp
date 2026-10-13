@@ -28,6 +28,12 @@ const Index = () => {
   });
   const [viewMode, setViewMode] = useState<'table' | 'cards' | 'kanban'>('table');
   const isMobile = useIsMobile();
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [search, setSearch] = useState("");
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const [loading, setLoading] = useState(true);
   const leadsRef = useRef<Lead[]>([]);
   leadsRef.current = leads;
 
