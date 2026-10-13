@@ -178,13 +178,14 @@ export async function createAdminUser(
 
 export async function updateAdminUser(
   userId: string,
-  updates: { name?: string; role?: string; password?: string }
-): Promise<{ id: string; email: string; name: string; role: string; success: boolean }> {
+  updates: { name?: string; role?: string; password?: string; avatar_url?: string }
+): Promise<{ id: string; email: string; name: string; avatar_url: string | null; role: string; success: boolean }> {
   const { data, error } = await (supabase.rpc as any)('admin_update_user', {
     p_user_id: userId,
     p_name: updates.name || null,
     p_role: updates.role || null,
     p_password: updates.password || null,
+    p_avatar_url: updates.avatar_url ?? null,
   });
   if (error) {
     console.error('Erro ao atualizar usuário:', error);

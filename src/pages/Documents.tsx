@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
+import { Portal } from '@/components/Portal';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -483,8 +484,9 @@ export default function Documents() {
 
       {/* Delete Template Confirmation */}
       {deleteTemplate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setDeleteTemplate(null)}>
-          <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <Portal>
+          <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/60 p-4" onClick={() => setDeleteTemplate(null)}>
+            <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full my-auto shadow-xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-semibold mb-2">Remover modelo?</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Remover o modelo <strong>{deleteTemplate.label}</strong>? O arquivo enviado será excluído do storage.
@@ -494,8 +496,9 @@ export default function Documents() {
               <Button onClick={handleDeleteTemplate} className="bg-red-500 hover:bg-red-600 text-white">Remover</Button>
             </div>
           </div>
-        </div>
-      )}
+          </div>
+        </Portal>
+        )}
       </main>
     );
   }
@@ -673,8 +676,9 @@ export default function Documents() {
 
       {/* Delete Confirmation */}
       {deleteDoc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setDeleteDoc(null)}>
-          <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <Portal>
+          <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/60 p-4" onClick={() => setDeleteDoc(null)}>
+            <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full my-auto shadow-xl" onClick={(e) => e.stopPropagation()}>
             <DialogTitle className="text-lg font-semibold mb-2">Excluir documento?</DialogTitle>
             <p className="text-sm text-muted-foreground mb-4">
               Excluir <strong>{deleteDoc.title}</strong>? Esta ação não pode ser desfeita.
@@ -684,7 +688,8 @@ export default function Documents() {
               <Button onClick={handleDeleteDoc} className="bg-red-500 hover:bg-red-600 text-white">Excluir</Button>
             </div>
           </div>
-        </div>
+          </div>
+        </Portal>
       )}
     </main>
   );

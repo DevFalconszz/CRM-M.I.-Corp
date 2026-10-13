@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Send, Lock } from 'lucide-react';
 import { toast } from 'sonner';
+import { Portal } from '@/components/Portal';
 
 interface Props {
   date: Date;
@@ -44,8 +45,9 @@ export function DailyReportModal({ date, blocking, onClose, onSaved, saveFn }: P
   };
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg rounded-2xl border border-border bg-card shadow-xl p-6">
+    <Portal>
+    <div className="fixed inset-0 z-[100] bg-black/80 flex items-start justify-center overflow-y-auto p-4">
+      <div className="w-full max-w-lg my-auto rounded-2xl border border-border bg-card shadow-xl p-6">
         {blocking && (
           <div className="flex items-center gap-2 mb-3 text-amber-600 dark:text-amber-400 text-sm">
             <Lock className="w-4 h-4" />
@@ -80,5 +82,6 @@ export function DailyReportModal({ date, blocking, onClose, onSaved, saveFn }: P
         </Button>
       </div>
     </div>
+    </Portal>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { Loader2, Users, Target, Inbox, TrendingUp, Activity, Key, RefreshCw, AlertTriangle, UserPlus, Pencil, Trash2, Eye, EyeOff, Shield, ShieldOff, FileText } from 'lucide-react';
+import { Loader2, Users, Target, Inbox, TrendingUp, Activity, Key, RefreshCw, AlertTriangle, UserPlus, Pencil, Trash2, Eye, EyeOff, Shield, ShieldOff, FileText, Camera } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -24,6 +24,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { initials } from '@/lib/avatars';
+import { uploadAvatar } from '@/lib/avatar-upload';
+import { Portal } from '@/components/Portal';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -97,6 +99,9 @@ export default function DashboardAdmin() {
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [newUser, setNewUser] = useState({ email: '', password: '', name: '', role: 'sdr' });
   const [editUser, setEditUser] = useState({ name: '', role: '', password: '' });
+  const [editAvatarUrl, setEditAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const editAvatarInputRef = useRef<HTMLInputElement | null>(null);
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
   const [userToDelete, setUserToDelete] = useState<AdminUser | null>(null);
 
@@ -226,12 +231,14 @@ export default function DashboardAdmin() {
       return;
     }
     try {
+      const avatarChanged = (editAvatarUrl ?? null) !== (selectedUser.avatar_url ?? null);
       const updated = await updateAdminUser(selectedUser.id, {
         name: editUser.name,
         role: editUser.role,
         password: editUser.password || undefined,
+        avatar_url: avatarChanged ? (editAvatarUrl ?? '') : undefined,
       });
-      setUsers((prev) => prev.map((u) => u.id === selectedUser.id ? { ...u, name: updated.name, role: updated.role } : u));
+      setUsers((prev) => prev.map((u) => u.id === selectedUser.id ? { ...u, name: updated.name, role: updated.role, avatar_url: updated.avatar_url } : u));
       setShowEditUserModal(false);
       setSelectedUser(null);
       toast.success(
@@ -260,7 +267,23 @@ export default function DashboardAdmin() {
   const openEditModal = (user: AdminUser) => {
     setSelectedUser(user);
     setEditUser({ name: user.name || '', role: user.role || 'sdr', password: '' });
+    setEditAvatarUrl(user.avatar_url ?? null);
     setShowEditUserModal(true);
+  };
+
+  const handleEditAvatarChange = async (file: File) => {
+    if (!selectedUser) return;
+    setUploadingAvatar(true);
+    try {
+      const { url, error } = await uploadAvatar(selectedUser.id, file);
+      if (error || !url) throw error || new Error('Falha ao enviar a imagem.');
+      setEditAvatarUrl(url);
+      toast.success('Foto atualizada. Clique em Salvar Alterações para confirmar.');
+    } catch (e: any) {
+      toast.error(e?.message || 'Erro ao enviar a foto.');
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   const togglePasswordVisibility = (userId: string) => {
@@ -1005,8 +1028,9 @@ export default function DashboardAdmin() {
 
             {/* Create User Modal */}
             {showCreateUserModal && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                <Card className="w-full max-w-md mx-4">
+              <Portal>
+                <div className="fixed inset-0 z-[100] bg-black/50 flex items-start justify-center overflow-y-auto p-4">
+                  <Card className="w-full max-w-md my-auto">
                   <CardHeader>
                     <CardTitle>Criar Novo Usuário</CardTitle>
                   </CardHeader>
@@ -1073,19 +1097,60 @@ export default function DashboardAdmin() {
                   </CardContent>
                 </Card>
               </div>
+              </Portal>
             )}
 
             {/* Edit User Modal */}
             {showEditUserModal && selectedUser && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                <Card className="w-full max-w-md mx-4">
+              <Portal>
+                <div className="fixed inset-0 z-[100] bg-black/50 flex items-start justify-center overflow-y-auto p-4">
+                  <Card className="w-full max-w-md my-auto">
                   <CardHeader>
                     <CardTitle>Editar Usuário</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-foreground">Email</label>
-                      <p className="mt-1 text-foreground">{selectedUser.email}</p>
+                    <div className="flex items-center gap-4">
+                      <div className="relative shrink-0">
+                        <Avatar className="h-16 w-16 border border-border">
+                          {editAvatarUrl ? <AvatarImage src={editAvatarUrl} alt={selectedUser.name || selectedUser.email} /> : null}
+                          <AvatarFallback className="bg-gold-500 text-black text-xl font-bold">
+                            {initials(selectedUser.name || selectedUser.email) || '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <button
+                          type="button"
+                          onClick={() => editAvatarInputRef.current?.click()}
+                          disabled={uploadingAvatar}
+                          title="Alterar foto"
+                          className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full bg-gold-500 text-black shadow-md hover:bg-gold-600 disabled:opacity-60"
+                        >
+                          {uploadingAvatar ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5" />}
+                        </button>
+                        <input
+                          ref={editAvatarInputRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            e.target.value = '';
+                            if (file) handleEditAvatarChange(file);
+                          }}
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <label className="text-sm font-medium text-foreground">Email</label>
+                        <p className="mt-1 text-foreground break-all">{selectedUser.email}</p>
+                        {editAvatarUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setEditAvatarUrl(null)}
+                            className="mt-1 text-xs text-red-500 hover:underline"
+                          >
+                            Remover foto
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-foreground">Nome</label>
@@ -1143,6 +1208,7 @@ export default function DashboardAdmin() {
                   </CardContent>
                 </Card>
               </div>
+              </Portal>
             )}
           </>
         )}
