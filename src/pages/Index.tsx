@@ -5,30 +5,55 @@ import { Lead, AdminUser } from '@/lib/types';
 import { loadLeads, insertLead, updateLead, deleteLead, transferLead } from '@/lib/leads-store';
 import { LeadsTable } from '@/components/LeadsTable';
 import { LeadCard } from '@/components/LeadCard';
+import { LeadsKanban } from '@/components/LeadsKanban';
 import { LeadModal } from '@/components/LeadModal';
 import { AddLeadModal } from '@/components/AddLeadModal';
-import { Plus, Search, LayoutGrid, Table2, Loader2 } from 'lucide-react';
+import { Plus, Search, LayoutGrid, Table2, Columns, Filter, Loader2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchAdminUsers } from '@/lib/dashboard-api';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Badge } from '@/components/ui/badge';
 
 const Index = () => {
   const { role, user } = useAuth();
   const isAdmin = role === 'admin';
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [search, setSearch] = useState('');
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [showAdd, setShowAdd] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
+  const [filters, setFilters] = useState({
+    status: [] as string[],
+    responsavel: '',
+    city: '',
+    state: '',
+  });
+  const [viewMode, setViewMode] = useState<'table' | 'cards' | 'kanban'>('table');
   const isMobile = useIsMobile();
   const leadsRef = useRef<Lead[]>([]);
   leadsRef.current = leads;
 
-  useEffect(() => { if (isMobile) setViewMode('cards'); }, [isMobile]);
+  useEffect(() => { if (isMobile && viewMode === 'kanban') setViewMode('cards'); }, [isMobile]);
+
+  // Restaurar preferências
+  useEffect(() => {
+    try {
+      const savedView = localStorage.getItem('crm_viewMode') as any;
+      if (savedView && ['table','cards','kanban'].includes(savedView)) {
+        setViewMode(savedView);
+      }
+      const savedFilters = localStorage.getItem('crm_filters');
+      if (savedFilters) {
+        setFilters(JSON.parse(savedFilters));
+      }
+    } catch (e) {}
+  }, []);
+
+  useEffect(() => {
+    try { localStorage.setItem('crm_viewMode', viewMode); } catch (e) {}
+  }, [viewMode]);
+
+  useEffect(() => {
+    try { localStorage.setItem('crm_filters', JSON.stringify(filters)); } catch (e) {}
+  }, [filters]);
 
   // Carga inicial + usuários admin
   useEffect(() => {
@@ -127,14 +152,29 @@ const Index = () => {
   };
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return leads;
-    const q = search.toLowerCase();
-    return leads.filter(l =>
-      l.name.toLowerCase().includes(q) || l.category.toLowerCase().includes(q) ||
-      l.city.toLowerCase().includes(q) || l.responsavel.toLowerCase().includes(q) ||
-      l.nome_decisor.toLowerCase().includes(q)
-    );
-  }, [leads, search]);
+    let result = leads;
+    const q = search.trim().toLowerCase();
+    if (q) {
+      result = result.filter(l =>
+        l.name.toLowerCase().includes(q) || l.category.toLowerCase().includes(q) ||
+        l.city.toLowerCase().includes(q) || l.responsavel.toLowerCase().includes(q) ||
+        l.nome_decisor.toLowerCase().includes(q)
+      );
+    }
+    if (filters.status.length > 0) {
+      result = result.filter(l => filters.status.includes(l.status));
+    }
+    if (filters.responsavel) {
+      result = result.filter(l => (l.responsavel || '').toLowerCase().includes(filters.responsavel.toLowerCase()));
+    }
+    if (filters.city) {
+      result = result.filter(l => (l.city || '').toLowerCase().includes(filters.city.toLowerCase()));
+    }
+    if (filters.state) {
+      result = result.filter(l => (l.state || '').toUpperCase().includes(filters.state.toUpperCase()));
+    }
+    return result;
+  }, [leads, search, filters]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -148,11 +188,49 @@ const Index = () => {
             <div className="flex items-center gap-2 shrink-0 md:justify-end">
               <div className="flex gap-1.5 sm:gap-2">
                 <Button variant={viewMode === 'cards' ? 'default' : 'outline'} size="sm" className={`h-10 sm:h-11 w-10 sm:w-11 p-0 rounded-xl ${viewMode === 'cards' ? 'bg-gold-500 hover:bg-gold-600 text-black' : ''}`} onClick={() => setViewMode('cards')}><LayoutGrid className="w-4 h-4" /></Button>
+                <Button variant={viewMode === 'kanban' ? 'default' : 'outline'} size="sm" className={`h-10 sm:h-11 w-10 sm:w-11 p-0 rounded-xl ${viewMode === 'kanban' ? 'bg-gold-500 hover:bg-gold-600 text-black' : ''}`} onClick={() => setViewMode('kanban')}><Columns className="w-4 h-4" /></Button>
                 <Button variant={viewMode === 'table' ? 'default' : 'outline'} size="sm" className={`h-10 sm:h-11 w-10 sm:w-11 p-0 rounded-xl ${viewMode === 'table' ? 'bg-gold-500 hover:bg-gold-600 text-black' : ''}`} onClick={() => setViewMode('table')}><Table2 className="w-4 h-4" /></Button>
               </div>
-              <Button className="h-10 sm:h-11 rounded-xl px-3 sm:px-4 text-sm bg-gold-500 text-black hover:bg-gold-600" onClick={() => setShowAdd(true)}>
-                <Plus className="w-4 h-4 mr-1 sm:mr-2" /><span className="hidden sm:inline">Adicionar</span><span className="sm:hidden">Novo</span>
-              </Button>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-10 sm:h-11 rounded-xl px-3 sm:px-4 text-sm">
+                    <Filter className="w-4 h-4 mr-1 sm:mr-2" /> Filtros
+                    {(filters.status.length>0 || filters.responsavel || filters.city || filters.state) && <Badge className="ml-2 bg-gold-500 text-black">{(filters.status.length>0?1:0) + (filters.responsavel?1:0)+(filters.city?1:0)+(filters.state?1:0)}</Badge>}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side={isMobile ? 'bottom' : 'right'} className={isMobile ? 'h-[85vh] p-0' : 'w-[340px] p-0'}>
+                  <SheetHeader className="px-5 py-4 border-b border-border">
+                    <SheetTitle>Filtros rápidos</SheetTitle>
+                  </SheetHeader>
+                  <div className="p-5 space-y-4 overflow-y-auto">
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-2">Status</p>
+                      <div className="flex flex-wrap gap-2">
+                        {(['analise_pendente','em_analise','ponto_contato','follow_up','reuniao_agendada','venda_fechada','recusado'] as any[]).map((s) => (
+                          <button key={s} onClick={() => setFilters(f => ({...f, status: f.status.includes(s) ? f.status.filter(x=>x!==s) : [...f.status, s]}))} className={`px-2 py-1 rounded-full text-xs border ${filters.status.includes(s) ? 'bg-gold-500 text-black border-gold-500' : 'bg-accent border-border text-foreground'}`}>{s.replace('_',' ').toUpperCase()}</button>
+                        ))}
+                      </div>
+                    </div>
+                    {isAdmin && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Responsável</p>
+                        <Input value={filters.responsavel} onChange={(e)=>setFilters(f=>({...f,responsavel:e.target.value}))} placeholder="Nome do responsável" className="h-9 text-sm" />
+                      </div>
+                    )}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Cidade</p>
+                        <Input value={filters.city} onChange={(e)=>setFilters(f=>({...f,city:e.target.value}))} placeholder="Cidade" className="h-9 text-sm" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">UF</p>
+                        <Input value={filters.state} onChange={(e)=>setFilters(f=>({...f,state:e.target.value.toUpperCase()}))} placeholder="UF" className="h-9 text-sm uppercase" />
+                      </div>
+                    </div>
+                    <Button variant="outline" className="w-full" onClick={()=>setFilters({status:[],responsavel:'',city:'',state:''})}>Limpar filtros</Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
               <span className="text-xs font-medium text-muted-foreground bg-accent px-2 sm:px-2.5 py-1 rounded-full whitespace-nowrap">{filtered.length} leads</span>
             </div>
           </div>
@@ -162,6 +240,8 @@ const Index = () => {
       <main className="max-w-[1600px] mx-auto px-3 sm:px-4 py-3 sm:py-4">
         {loading ? (
           <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-gold-500" /></div>
+        ) : viewMode === 'kanban' ? (
+          <LeadsKanban leads={filtered} onOpenLead={setSelectedLead} onUpdateLead={handleUpdateLead} />
         ) : viewMode === 'table' ? (
           <LeadsTable
               leads={filtered}

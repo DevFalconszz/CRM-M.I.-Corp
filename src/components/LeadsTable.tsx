@@ -180,7 +180,7 @@ export function LeadsTable({
 
       {/* Tabela */}
       <div className="border border-border/70 rounded-xl bg-card shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-[11px] uppercase tracking-wider text-muted-foreground bg-accent/60">
