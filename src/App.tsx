@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound.tsx";
 import Documents from "./pages/Documents.tsx";
 import { AppHeader } from "./components/AppHeader.tsx";
 import { DailyReportGate } from "./components/DailyReportGate.tsx";
+import { AppUpdateWatcher } from "./components/AppUpdateWatcher.tsx";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
+        <AppUpdateWatcher />
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Auth />} />
