@@ -49,14 +49,14 @@ export function LeadsKanban({ leads, onOpenLead, onUpdateLead }: Props) {
   };
 
   return (
-    <div className="flex gap-3 overflow-x-auto pb-2 -mx-3 sm:mx-0 px-3 sm:px-0 custom-scrollbar">
+    <div className="flex gap-3 overflow-x-auto overscroll-x-contain snap-x snap-mandatory scroll-px-3 sm:scroll-px-0 pb-3 -mx-3 sm:mx-0 px-3 sm:px-0 custom-scrollbar touch-pan-x">
       {COLUMNS.map((col) => {
         const list = grouped[col.key] || [];
         return (
           <div
             key={col.key}
             className={cn(
-              'flex-shrink-0 w-[280px] sm:w-[300px] rounded-xl border bg-card/80 shadow-sm flex flex-col max-h-[calc(100vh-260px)]',
+              'flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px] lg:w-[340px] xl:w-[320px] rounded-xl border bg-card/80 shadow-sm flex flex-col max-h-[calc(100vh-260px)] snap-start scroll-smooth',
               col.className
             )}
             onDragOver={handleDragOver}
