@@ -49,7 +49,7 @@ export function LeadsKanban({ leads, onOpenLead, onUpdateLead }: Props) {
   };
 
   return (
-    <div className="flex gap-3 overflow-x-auto pb-2 -mx-3 sm:mx-0 px-3 sm:px-0">
+    <div className="flex gap-3 overflow-x-auto pb-2 -mx-3 sm:mx-0 px-3 sm:px-0 custom-scrollbar">
       {COLUMNS.map((col) => {
         const list = grouped[col.key] || [];
         return (
@@ -69,7 +69,7 @@ export function LeadsKanban({ leads, onOpenLead, onUpdateLead }: Props) {
               </div>
               <span className="text-xs text-muted-foreground bg-accent px-2 py-0.5 rounded-full">{list.length}</span>
             </div>
-            <div className="flex-1 overflow-y-auto p-2 space-y-2">
+            <div className="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar">
               {list.map((lead) => (
                 <div
                   key={lead.id}
