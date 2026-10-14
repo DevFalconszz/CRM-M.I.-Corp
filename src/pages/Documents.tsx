@@ -485,7 +485,7 @@ export default function Documents() {
       {/* Delete Template Confirmation */}
       {deleteTemplate && (
         <Portal>
-          <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/60 p-4" onClick={() => setDeleteTemplate(null)}>
+          <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto custom-scrollbar bg-black/60 p-4" onClick={() => setDeleteTemplate(null)}>
             <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full my-auto shadow-xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-semibold mb-2">Remover modelo?</h3>
             <p className="text-sm text-muted-foreground mb-4">
@@ -677,7 +677,7 @@ export default function Documents() {
       {/* Delete Confirmation */}
       {deleteDoc && (
         <Portal>
-          <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/60 p-4" onClick={() => setDeleteDoc(null)}>
+          <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto custom-scrollbar bg-black/60 p-4" onClick={() => setDeleteDoc(null)}>
             <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full my-auto shadow-xl" onClick={(e) => e.stopPropagation()}>
             <DialogTitle className="text-lg font-semibold mb-2">Excluir documento?</DialogTitle>
             <p className="text-sm text-muted-foreground mb-4">

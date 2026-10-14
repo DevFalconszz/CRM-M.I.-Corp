@@ -476,7 +476,7 @@ export default function DashboardAdmin() {
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold text-foreground">Produção por Usuário</CardTitle>
             </CardHeader>
-            <CardContent className="overflow-x-auto">
+            <CardContent className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-accent/50">
@@ -857,7 +857,7 @@ export default function DashboardAdmin() {
                       Detalhamento por Endpoint e Chave
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="overflow-x-auto">
+                  <CardContent className="overflow-x-auto custom-scrollbar">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-border bg-accent/50">
@@ -931,7 +931,7 @@ export default function DashboardAdmin() {
                     Usuários Cadastrados ({users.length})
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="overflow-x-auto">
+                <CardContent className="overflow-x-auto custom-scrollbar">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border bg-accent/50">
@@ -1029,7 +1029,7 @@ export default function DashboardAdmin() {
             {/* Create User Modal */}
             {showCreateUserModal && (
               <Portal>
-                <div className="fixed inset-0 z-[100] bg-black/50 flex items-start justify-center overflow-y-auto p-4">
+                <div className="fixed inset-0 z-[100] bg-black/50 flex items-start justify-center overflow-y-auto custom-scrollbar p-4">
                   <Card className="w-full max-w-md my-auto">
                   <CardHeader>
                     <CardTitle>Criar Novo Usuário</CardTitle>
@@ -1103,7 +1103,7 @@ export default function DashboardAdmin() {
             {/* Edit User Modal */}
             {showEditUserModal && selectedUser && (
               <Portal>
-                <div className="fixed inset-0 z-[100] bg-black/50 flex items-start justify-center overflow-y-auto p-4">
+                <div className="fixed inset-0 z-[100] bg-black/50 flex items-start justify-center overflow-y-auto custom-scrollbar p-4">
                   <Card className="w-full max-w-md my-auto">
                   <CardHeader>
                     <CardTitle>Editar Usuário</CardTitle>
@@ -1231,7 +1231,7 @@ export default function DashboardAdmin() {
                     Relatórios ({dailyReports.length})
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="overflow-x-auto">
+                <CardContent className="overflow-x-auto custom-scrollbar">
                   {dailyReports.length === 0 ? (
                     <p className="py-8 text-center text-sm text-muted-foreground">
                       Nenhum relatório diário registrado ainda.

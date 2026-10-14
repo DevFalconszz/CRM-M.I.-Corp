@@ -45,7 +45,7 @@ export function AddLeadModal({ open, onClose, onAdd }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl p-4 sm:p-6">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar rounded-2xl p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="text-lg text-foreground">Adicionar Nova Empresa</DialogTitle>
         </DialogHeader>

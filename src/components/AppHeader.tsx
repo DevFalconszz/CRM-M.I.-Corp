@@ -151,7 +151,7 @@ export function AppHeader() {
               </div>
 
               {/* Links de navegação */}
-              <nav className="flex-1 px-4 py-3 space-y-1 overflow-y-auto">
+              <nav className="flex-1 px-4 py-3 space-y-1 overflow-y-auto custom-scrollbar">
                 {visibleTabs.map((tab) => {
                   const active = location.pathname === tab.to;
                   return (

@@ -208,7 +208,7 @@ const Index = () => {
                   <SheetHeader className="px-5 py-4 border-b border-border">
                     <SheetTitle>Filtros rápidos</SheetTitle>
                   </SheetHeader>
-                  <div className="p-5 space-y-4 overflow-y-auto">
+                  <div className="p-5 space-y-4 overflow-y-auto custom-scrollbar">
                     <div>
                       <p className="text-xs font-medium text-muted-foreground mb-2">Status</p>
                       <div className="flex flex-wrap gap-2">

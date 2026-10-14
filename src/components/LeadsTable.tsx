@@ -180,12 +180,12 @@ export function LeadsTable({
 
       {/* Tabela */}
       <div className="border border-border/70 rounded-xl bg-card shadow-sm overflow-hidden">
-        <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0">
+        <div className="overflow-x-auto custom-scrollbar overscroll-x-contain snap-x snap-mandatory scroll-px-3 sm:scroll-px-0 -mx-3 sm:mx-0 px-3 sm:px-0 custom-scrollbar touch-pan-x">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-[11px] uppercase tracking-wider text-muted-foreground bg-accent/60">
                 {isAdmin && (
-                  <th className="sticky left-0 z-10 bg-accent/70 backdrop-blur px-4 py-3 font-semibold w-10">
+                  <th className="sticky left-0 z-10 bg-accent/70 backdrop-blur px-4 py-3 font-semibold whitespace-nowrap snap-start">
                     <input
                       type="checkbox"
                       checked={allSelected}
@@ -195,15 +195,15 @@ export function LeadsTable({
                     />
                   </th>
                 )}
-                <th className="sticky left-0 z-10 bg-accent/70 backdrop-blur px-4 py-3 font-semibold whitespace-nowrap">Nome</th>
-                <th className="px-3 py-3 font-semibold whitespace-nowrap">Status</th>
-                <th className="px-3 py-3 font-semibold whitespace-nowrap">Nicho</th>
-                <th className="px-3 py-3 font-semibold whitespace-nowrap">Cidade</th>
-                <th className="px-3 py-3 font-semibold whitespace-nowrap">Telefone</th>
-                <th className="px-3 py-3 font-semibold whitespace-nowrap">Nome Decisor</th>
-                <th className="px-3 py-3 font-semibold whitespace-nowrap">Número Decisor</th>
-                <th className="px-3 py-3 font-semibold whitespace-nowrap">Responsável</th>
-                <th className="sticky right-0 z-10 bg-accent/70 backdrop-blur px-4 py-3 text-center font-semibold whitespace-nowrap">Ações</th>
+                <th className="sticky left-0 z-10 bg-accent/70 backdrop-blur px-4 py-3 font-semibold whitespace-nowrap snap-start">Nome</th>
+                <th className="px-3 py-3 font-semibold whitespace-nowrap snap-start">Status</th>
+                <th className="px-3 py-3 font-semibold whitespace-nowrap snap-start">Nicho</th>
+                <th className="px-3 py-3 font-semibold whitespace-nowrap snap-start">Cidade</th>
+                <th className="px-3 py-3 font-semibold whitespace-nowrap snap-start">Telefone</th>
+                <th className="px-3 py-3 font-semibold whitespace-nowrap snap-start">Nome Decisor</th>
+                <th className="px-3 py-3 font-semibold whitespace-nowrap snap-start">Número Decisor</th>
+                <th className="px-3 py-3 font-semibold whitespace-nowrap snap-start">Responsável</th>
+                <th className="sticky right-0 z-10 bg-accent/70 backdrop-blur px-4 py-3 text-center font-semibold whitespace-nowrap snap-start">Ações</th>
               </tr>
             </thead>
             <tbody>

@@ -46,7 +46,7 @@ export function DailyReportModal({ date, blocking, onClose, onSaved, saveFn }: P
 
   return (
     <Portal>
-    <div className="fixed inset-0 z-[100] bg-black/80 flex items-start justify-center overflow-y-auto p-4">
+    <div className="fixed inset-0 z-[100] bg-black/80 flex items-start justify-center overflow-y-auto custom-scrollbar p-4">
       <div className="w-full max-w-lg my-auto rounded-2xl border border-border bg-card shadow-xl p-6">
         {blocking && (
           <div className="flex items-center gap-2 mb-3 text-amber-600 dark:text-amber-400 text-sm">

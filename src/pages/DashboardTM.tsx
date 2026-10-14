@@ -324,7 +324,7 @@ export default function DashboardTM() {
             <CardHeader>
               <CardTitle className="text-base">Leads por Responsável</CardTitle>
             </CardHeader>
-            <CardContent className="overflow-x-auto">
+            <CardContent className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-xs text-muted-foreground">
@@ -391,7 +391,7 @@ export default function DashboardTM() {
               <Plus className="w-4 h-4 mr-1.5" />Nova Campanha
             </Button>
           </CardHeader>
-          <CardContent className="overflow-x-auto">
+          <CardContent className="overflow-x-auto custom-scrollbar">
             {((data?.campanhas ?? []).some((c) => hasBudgetAlert(c) || hasNoLeadAlert(c))) && (
               <div className="mb-4 flex items-center gap-2 text-xs text-amber-600 border border-amber-500/40 bg-amber-500/10 rounded-lg px-3 py-2">
                 <AlertTriangle className="w-4 h-4 shrink-0" />
@@ -473,7 +473,7 @@ export default function DashboardTM() {
             </span>
           </CardHeader>
           <CardContent className="px-4 pb-4">
-            <div className="overflow-x-auto rounded-xl border border-border/60">
+            <div className="overflow-x-auto custom-scrollbar rounded-xl border border-border/60">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-[11px] uppercase tracking-wider text-muted-foreground bg-accent/60">
@@ -595,7 +595,7 @@ export default function DashboardTM() {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg rounded-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg rounded-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
           <DialogHeader>
             <DialogTitle className="text-lg text-foreground">
               {form.id ? 'Editar Campanha' : 'Nova Campanha de Tráfego'}

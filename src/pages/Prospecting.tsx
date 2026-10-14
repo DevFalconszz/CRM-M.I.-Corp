@@ -263,7 +263,7 @@ export default function Prospecting() {
             </p>
 
             <Card className="border border-border shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto custom-scrollbar">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-accent/50">

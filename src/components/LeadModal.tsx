@@ -146,7 +146,7 @@ export function LeadModal({ lead, open, onClose, onUpdate }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
-      <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto rounded-2xl p-4 sm:p-6">
+      <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto custom-scrollbar rounded-2xl p-4 sm:p-6">
         {/* Cabeçalho do lead */}
         <div className="flex items-center gap-3 sm:gap-4 pb-4 border-b border-border">
           <span className={`w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-full flex items-center justify-center text-base sm:text-lg font-bold ${avatarColor(lead.name)}`}>
