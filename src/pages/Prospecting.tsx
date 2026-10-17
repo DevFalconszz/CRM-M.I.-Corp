@@ -197,6 +197,16 @@ export default function Prospecting() {
       const inserted = await insertLead(lead);
       if (inserted) {
         toast.success(`"${result.name}" adicionado aos leads!`);
+        if (addingIndex !== null) {
+          const updated = results.filter((_, i) => i !== addingIndex);
+          setResults(updated);
+          try {
+            sessionStorage.setItem(
+              RESULTS_KEY,
+              JSON.stringify({ niche, city, results: updated })
+            );
+          } catch {}
+        }
         setAddingIndex(null);
         setResponsavel('');
       } else {

@@ -162,3 +162,28 @@ export async function loadSavedLeadsIndex(): Promise<SavedLeadsIndex> {
     .select('id,name,phone,website,google_maps_url,source_place_id,city');
   return buildSavedLeadsIndex((local || []) as LeadFingerprint[]);
 }
+/** Adiciona fingerprint de um lead recém-inserido ao índice em memória (reutilizável). */
+export function appendSavedLead(index: SavedLeadsIndex, lead: Partial<LeadFingerprint> & { id: string }): SavedLeadsIndex {
+  const names = new Set(index.names);
+  const phones = new Set(index.phones);
+  const websites = new Set(index.websites);
+  const maps = new Set(index.maps);
+  const places = new Set(index.places);
+
+  const nk = nameKey(lead.name || '');
+  if (nk) names.add(nk);
+
+  const pk = phoneKey(lead.phone || '');
+  if (pk) phones.add(pk);
+
+  const wk = websiteHostKey(lead.website || '');
+  if (wk) websites.add(wk);
+
+  const mk = mapsKey(lead.google_maps_url || '');
+  if (mk) maps.add(mk);
+
+  const lk = placeKey(lead.source_place_id || '');
+  if (lk) places.add(lk);
+
+  return { names, phones, websites, maps, places };
+}
