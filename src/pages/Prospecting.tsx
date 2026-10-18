@@ -38,6 +38,7 @@ export default function Prospecting() {
   const [addingIndex, setAddingIndex] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [localMode, setLocalMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     isLocalServerRunning().then(running => setLocalMode(running));
@@ -169,37 +170,68 @@ export default function Prospecting() {
     }
   };
 
+  const toggleSelectAll = () => {
+    if (selectedIds.size === results.length) {
+      setSelectedIds(new Set());
+      return;
+    }
+    setSelectedIds(new Set(results.map((_, i) => i)));
+  };
+
+  const toggleSelect = (idx: number) => {
+    const next = new Set(selectedIds);
+    if (next.has(idx)) next.delete(idx);
+    else next.add(idx);
+    setSelectedIds(next);
+  };
+
+  const handleAddSelected = async () => {
+    if (saving || selectedIds.size === 0) return;
+    setSaving(true);
+    try {
+      const toAdd = Array.from(selectedIds).sort((a,b)=>a-b).map((i)=>results[i]);
+      for (const result of toAdd) {
+        await addSingleLead(result);
+      }
+      const keepIdx = results
+        .map((_, i) => i)
+        .filter((i) => !selectedIds.has(i));
+      const kept = keepIdx.map((i) => results[i]);
+      setResults(kept);
+      setSelectedIds(new Set());
+      try { sessionStorage.setItem(RESULTS_KEY, JSON.stringify({ niche, city, results: kept })); } catch {}
+      toast.success(`${toAdd.length} lead${toAdd.length!==1?'s':''} adicionado${toAdd.length!==1?'s':''}!`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAddAll = async () => {
+    if (saving || results.length === 0) return;
+    setSaving(true);
+    try {
+      for (const result of results) {
+        await addSingleLead(result);
+      }
+      setResults([]);
+      setSelectedIds(new Set());
+      try { sessionStorage.removeItem(RESULTS_KEY); } catch {}
+      toast.success(`${results.length} lead${results.length!==1?'s':''} adicionado${results.length!==1?'s':''}!`);
+    } finally {
+      setSaving(false);
+    }
+  };
   const handleAddLead = async (result: StructuredResult) => {
     if (saving) return;
     setSaving(true);
     try {
-      const toStr = (v: any) => v != null ? String(v) : '';
-
-      const leadCity = toStr(result.city) || city;
-      const leadState = toStr(result.state) || inferUf(leadCity) || inferUf(city);
-      const responsavel = user?.user_metadata?.full_name || user?.email || '';
-
-      const lead: Omit<Lead, 'id'> = {
-        name: toStr(result.name) || 'Sem nome', title: toStr(result.title),
-        category: toStr(result.category) || niche, address: toStr(result.address),
-        city: leadCity, state: leadState,
-        phone: toStr(result.phone), website: toStr(result.website),
-        google_maps_url: toStr(result.google_maps_url), rating: toStr(result.rating),
-        reviews_count: toStr(result.reviews_count), instagram: toStr(result.instagram),
-        responsavel: responsavel, descricao: '', status: 'analise_pendente',
-        whatsapp_group: '', meeting_dates: [], nome_decisor: '', numero_decisor: '',
-        has_ads: result.has_ads ?? null,
-        meta_has_ads: result.meta_has_ads ?? null,
-        google_ads_count: result.google_ads_count ?? 0,
-        source: 'prospeccao',
-      };
-
-      const inserted = await insertLead(lead);
-      if (inserted) {
+      const ok = await addSingleLead(result);
+      if (ok) {
         toast.success(`"${result.name}" adicionado aos leads!`);
         if (addingIndex !== null) {
           const updated = results.filter((_, i) => i !== addingIndex);
           setResults(updated);
+          setSelectedIds(new Set(Array.from(selectedIds).filter(x=>x!==addingIndex)));
           try {
             sessionStorage.setItem(
               RESULTS_KEY,
@@ -208,7 +240,6 @@ export default function Prospecting() {
           } catch {}
         }
         setAddingIndex(null);
-        setResponsavel('');
       } else {
         toast.error('Erro ao adicionar lead.');
       }
@@ -268,6 +299,22 @@ export default function Prospecting() {
 
         {!loading && results.length > 0 && (
           <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2 justify-between">
+              <p className="text-sm text-muted-foreground font-medium">
+                {results.length} oportunidades para <span className="text-foreground font-semibold">&quot;{niche}&quot;</span> em <span className="text-foreground font-semibold">{city}</span>
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" className="h-9 rounded-xl text-xs" onClick={toggleSelectAll} disabled={saving}>
+                  {selectedIds.size === results.length ? 'Desmarcar todos' : 'Selecionar todos'}
+                </Button>
+                <Button size="sm" className="h-9 rounded-xl text-xs bg-gold-500 text-black hover:bg-gold-600" onClick={handleAddSelected} disabled={saving || selectedIds.size === 0}>
+                  Adicionar Selecionados ({selectedIds.size})
+                </Button>
+                <Button size="sm" className="h-9 rounded-xl text-xs bg-gold-500 text-black hover:bg-gold-600" onClick={handleAddAll} disabled={saving || results.length === 0}>
+                  Adicionar Todos ({results.length})
+                </Button>
+              </div>
+            </div>
             <p className="text-sm text-muted-foreground font-medium">
               {results.length} oportunidades para <span className="text-foreground font-semibold">"{niche}"</span> em <span className="text-foreground font-semibold">{city}</span>
             </p>
@@ -277,7 +324,15 @@ export default function Prospecting() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-accent/50">
-                      <TableHead className="w-10"></TableHead>
+                      <TableHead className="w-10">
+                      <input
+                        type="checkbox"
+                        checked={results.length > 0 && selectedIds.size === results.length}
+                        onChange={toggleSelectAll}
+                        className="h-4 w-4 rounded border-border accent-gold-500 cursor-pointer"
+                        aria-label="Selecionar todos"
+                      />
+                    </TableHead>
                       <TableHead className="text-muted-foreground font-semibold">Nome</TableHead>
                       <TableHead className="text-muted-foreground font-semibold">Nicho</TableHead>
                       <TableHead className="text-muted-foreground font-semibold">Cidade</TableHead>
@@ -292,7 +347,14 @@ export default function Prospecting() {
                   <TableBody>
                     {results.map((result, i) => (
                       <TableRow key={i} className="hover:bg-accent/40 border-border">
-                        <TableCell>
+                        <TableCell className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(i)}
+                            onChange={() => toggleSelect(i)}
+                            className="h-4 w-4 rounded border-border accent-gold-500 cursor-pointer"
+                            aria-label="Selecionar lead"
+                          />
                           <Button size="sm" className="h-8 w-8 p-0 rounded-lg bg-gold-500 text-black hover:bg-gold-600" onClick={() => setAddingIndex(i)} title="Adicionar aos leads">
                             <Plus className="w-4 h-4" />
                           </Button>
