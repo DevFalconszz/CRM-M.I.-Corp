@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { addLeadReport } from '@/lib/leads-store';
+import { CONTACT_REPORT_PREFIX } from '@/lib/contact-stats';
 import { toast } from 'sonner';
 import {
   MessageCircle, Copy, ExternalLink, ShieldCheck, X, MapPin, Phone,
@@ -63,7 +64,7 @@ export function FirstContactComposer({ lead, onSent, onClose, inline = false }: 
     setStats(getSendStats());
     addLeadReport(
       lead.id,
-      `Primeiro contato enviado pelo WhatsApp para ${lead.nome_decisor || lead.name} (mensagem institucional M.I.).`
+      `${CONTACT_REPORT_PREFIX} para ${lead.nome_decisor || lead.name} (mensagem institucional M.I.).`
     ).catch(() => undefined);
     toast.success('WhatsApp aberto. É só confirmar o envio na conversa.');
     onSent?.(lead);

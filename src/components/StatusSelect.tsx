@@ -10,6 +10,7 @@ const statusStyles: Record<string, string> = {
   analise_pendente: 'bg-amber-500/15 text-amber-700 dark:text-amber-400',
   em_analise: 'bg-orange-500/15 text-orange-700 dark:text-orange-400',
   ponto_contato: 'bg-pink-500/15 text-pink-700 dark:text-pink-400',
+  mensagem_enviada: 'bg-teal-500/15 text-teal-700 dark:text-teal-400',
   follow_up: 'bg-sky-500/15 text-sky-700 dark:text-sky-400',
   reuniao_agendada: 'bg-violet-500/15 text-violet-700 dark:text-violet-400',
   recusado: 'bg-red-500/15 text-red-700 dark:text-red-400',
@@ -17,7 +18,7 @@ const statusStyles: Record<string, string> = {
 };
 
 const STATUSES: LeadStatus[] = [
-  'analise_pendente', 'em_analise', 'ponto_contato', 'follow_up',
+  'analise_pendente', 'em_analise', 'ponto_contato', 'mensagem_enviada', 'follow_up',
   'reuniao_agendada', 'recusado', 'venda_fechada',
 ];
 

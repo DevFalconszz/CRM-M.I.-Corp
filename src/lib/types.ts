@@ -1,9 +1,18 @@
-export type LeadStatus = 'analise_pendente' | 'em_analise' | 'ponto_contato' | 'follow_up' | 'reuniao_agendada' | 'recusado' | 'venda_fechada';
+export type LeadStatus =
+  | 'analise_pendente'
+  | 'em_analise'
+  | 'ponto_contato'
+  | 'mensagem_enviada'
+  | 'follow_up'
+  | 'reuniao_agendada'
+  | 'recusado'
+  | 'venda_fechada';
 
 export const STATUS_LABELS: Record<LeadStatus, string> = {
   analise_pendente: 'Análise Pendente',
   em_analise: 'Em Análise',
   ponto_contato: 'Pronto p/ Contato',
+  mensagem_enviada: 'Mensagem Enviada',
   follow_up: 'Follow Up',
   reuniao_agendada: 'Reunião Agendada',
   recusado: 'Recusado',

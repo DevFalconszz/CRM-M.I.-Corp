@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { loadLeadReports, addLeadReport, updateLeadReport, deleteLeadReport } from '@/lib/leads-store';
 import { FirstContactComposer } from './FirstContact';
-import { getLastContact } from '@/lib/first-contact';
+import { getLastContact, statusAfterContact } from '@/lib/first-contact';
 import { toast } from 'sonner';
 import { initials, avatarColor } from '@/lib/avatars';
 
@@ -187,7 +187,19 @@ export function LeadModal({ lead, open, onClose, onUpdate }: Props) {
                 </span>
               )}
             </div>
-            <FirstContactComposer lead={lead} inline />
+            <FirstContactComposer
+              lead={lead}
+              inline
+              onSent={(l) => onUpdate({
+                ...l,
+                whatsapp_group: whatsapp,
+                meeting_dates: selectedDates.map((d) => d.toISOString()),
+                descricao,
+                nome_decisor: nomeDecisor,
+                numero_decisor: numeroDecisor,
+                status: statusAfterContact(l.status),
+              })}
+            />
           </div>
         )}
 

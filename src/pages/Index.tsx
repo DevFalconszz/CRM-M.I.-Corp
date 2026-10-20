@@ -9,6 +9,7 @@ import { LeadsKanban } from '@/components/LeadsKanban';
 import { LeadModal } from '@/components/LeadModal';
 import { AddLeadModal } from '@/components/AddLeadModal';
 import { FirstContactModal } from '@/components/FirstContact';
+import { statusAfterContact } from '@/lib/first-contact';
 import { Plus, Search, LayoutGrid, Table2, Columns, Filter, Loader2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -214,7 +215,7 @@ const Index = () => {
                     <div>
                       <p className="text-xs font-medium text-muted-foreground mb-2">Status</p>
                       <div className="flex flex-wrap gap-2">
-                        {(['analise_pendente','em_analise','ponto_contato','follow_up','reuniao_agendada','venda_fechada','recusado'] as any[]).map((s) => (
+                        {(['analise_pendente','em_analise','ponto_contato','mensagem_enviada','follow_up','reuniao_agendada','venda_fechada','recusado'] as any[]).map((s) => (
                           <button key={s} onClick={() => setFilters(f => ({...f, status: f.status.includes(s) ? f.status.filter(x=>x!==s) : [...f.status, s]}))} className={`px-2 py-1 rounded-full text-xs border ${filters.status.includes(s) ? 'bg-gold-500 text-black border-gold-500' : 'bg-accent border-border text-foreground'}`}>{s.replace('_',' ').toUpperCase()}</button>
                         ))}
                       </div>
@@ -280,7 +281,11 @@ const Index = () => {
 
       <LeadModal lead={selectedLead} open={!!selectedLead} onClose={() => setSelectedLead(null)} onUpdate={handleUpdateLead} />
       <AddLeadModal open={showAdd} onClose={() => setShowAdd(false)} onAdd={handleAddLead} />
-      <FirstContactModal lead={contactLead} onClose={() => setContactLead(null)} />
+      <FirstContactModal
+        lead={contactLead}
+        onClose={() => setContactLead(null)}
+        onSent={(l) => handleUpdateLead({ ...l, status: statusAfterContact(l.status) })}
+      />
     </div>
   );
 };

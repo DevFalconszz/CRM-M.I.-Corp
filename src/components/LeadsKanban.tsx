@@ -16,6 +16,7 @@ const COLUMNS: { key: LeadStatus; title: string; className: string }[] = [
   { key: 'analise_pendente', title: STATUS_LABELS['analise_pendente'], className: 'border-amber-500/40 bg-amber-500/[0.02]' },
   { key: 'em_analise', title: STATUS_LABELS['em_analise'], className: 'border-orange-500/40 bg-orange-500/[0.02]' },
   { key: 'ponto_contato', title: STATUS_LABELS['ponto_contato'], className: 'border-pink-500/40 bg-pink-500/[0.02]' },
+  { key: 'mensagem_enviada', title: STATUS_LABELS['mensagem_enviada'], className: 'border-teal-500/40 bg-teal-500/[0.02]' },
   { key: 'follow_up', title: STATUS_LABELS['follow_up'], className: 'border-sky-500/40 bg-sky-500/[0.02]' },
   { key: 'reuniao_agendada', title: STATUS_LABELS['reuniao_agendada'], className: 'border-violet-500/40 bg-violet-500/[0.02]' },
   { key: 'venda_fechada', title: STATUS_LABELS['venda_fechada'], className: 'border-emerald-500/40 bg-emerald-500/[0.02]' },

@@ -1,4 +1,4 @@
-import { Lead } from './types';
+import { Lead, LeadStatus } from './types';
 
 /**
  * Primeiro contato assistido (envio manual pelo WhatsApp oficial).
@@ -13,6 +13,17 @@ export const MI_SITE = 'https://mi-corp.com.br';
 export const MI_SLOGAN = 'Resultados não acontecem; nós construímos.';
 export const MI_SERVICES =
   'gestão de tráfego pago, marketing estratégico, social media, criação de sites e automações com IA';
+
+/**
+ * Status após o primeiro contato: só avança etapas iniciais.
+ * Leads em follow-up, reunião, venda ou recusado mantêm o estágio atual.
+ */
+export function statusAfterContact(current: LeadStatus): LeadStatus {
+  if (current === 'analise_pendente' || current === 'em_analise' || current === 'ponto_contato') {
+    return 'mensagem_enviada';
+  }
+  return current;
+}
 
 /** Posição de contato do lead: decisor primeiro, depois telefone da empresa. */
 export function getLeadContactNumber(lead: Lead): string {

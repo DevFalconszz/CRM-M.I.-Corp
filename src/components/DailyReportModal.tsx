@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, Send, Lock } from 'lucide-react';
+import { Loader2, Send, Lock, MessageCircle } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { countByUser, fetchContactEventsForDay } from '@/lib/contact-stats';
 import { toast } from 'sonner';
 import { Portal } from '@/components/Portal';
 
@@ -24,8 +26,19 @@ const weekdays = [
 ];
 
 export function DailyReportModal({ date, blocking, onClose, onSaved, saveFn }: Props) {
+  const { user } = useAuth();
   const [content, setContent] = useState('');
   const [saving, setSaving] = useState(false);
+  const [sentCount, setSentCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const events = await fetchContactEventsForDay(date);
+      if (active) setSentCount(countByUser(events, user?.id));
+    })();
+    return () => { active = false; };
+  }, [date, user?.id]);
 
   const handleSave = async () => {
     if (!content.trim()) {
@@ -63,6 +76,22 @@ export function DailyReportModal({ date, blocking, onClose, onSaved, saveFn }: P
         <p className="text-sm text-muted-foreground mt-1 capitalize">
           {weekdays[date.getDay()]}, {date.getDate()} de {ptMonths[date.getMonth()]} de {date.getFullYear()}
         </p>
+
+        <div className="mt-4 rounded-xl border border-teal-500/30 bg-teal-500/[0.06] p-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <Lock className="w-3.5 h-3.5 text-teal-500" />
+              Mensagens enviadas neste dia
+            </div>
+            <span className="text-xl font-bold text-foreground font-mono-num">
+              {sentCount === null ? '—' : sentCount}
+            </span>
+          </div>
+          <p className="mt-1 text-[11px] text-muted-foreground flex items-center gap-1.5">
+            <MessageCircle className="w-3 h-3 shrink-0" />
+            Registro automático do sistema — não pode ser alterado no relatório.
+          </p>
+        </div>
 
         <textarea
           className="w-full mt-4 min-h-[160px] rounded-xl border border-input bg-background text-foreground p-3 text-sm focus:border-gold-500 focus:ring-gold-500 outline-none"

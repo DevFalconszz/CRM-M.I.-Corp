@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { Loader2, Users, Target, Inbox, TrendingUp, Activity, Key, RefreshCw, AlertTriangle, UserPlus, Pencil, Trash2, Eye, EyeOff, Shield, ShieldOff, FileText, Camera } from 'lucide-react';
+import { Loader2, Users, Target, Inbox, TrendingUp, Activity, Key, RefreshCw, AlertTriangle, UserPlus, Pencil, Trash2, Eye, EyeOff, Shield, ShieldOff, FileText, Camera, MessageCircle, Lock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -39,11 +39,16 @@ import {
 import { AdminLead, AdminDailyReport, AdminUser, DashboardView, STATUS_LABELS, LeadStatus, ApiUsageStats, ApiUsageSummary, SerpapiAccountUsage } from '@/lib/types';
 import { fetchAdminLeads, fetchApiUsageStats, fetchApiUsageSummary, fetchSerpapiUsage, triggerSerpapiSync, fetchAdminUsers, createAdminUser, updateAdminUser, deleteAdminUser, fetchAdminDailyReports } from '@/lib/dashboard-api';
 import { toast } from 'sonner';
+import {
+  buildDaySeries, fetchContactEvents, groupByDay, groupByUserAndDay,
+  startOfLocalDay, toLocalISODate, type ContactEvent,
+} from '@/lib/contact-stats';
 
 const STATUS_COLORS: Record<string, string> = {
   analise_pendente: '#f59e0b',
   em_analise: '#f97316',
   ponto_contato: '#ec4899',
+  mensagem_enviada: '#14b8a6',
   follow_up: '#0ea5e9',
   reuniao_agendada: '#8b5cf6',
   recusado: '#ef4444',
@@ -54,6 +59,7 @@ const STATUS_ORDER: LeadStatus[] = [
   'analise_pendente',
   'em_analise',
   'ponto_contato',
+  'mensagem_enviada',
   'follow_up',
   'reuniao_agendada',
   'venda_fechada',
@@ -110,6 +116,9 @@ export default function DashboardAdmin() {
   const [reportsLoading, setReportsLoading] = useState(false);
   const [expandedReportId, setExpandedReportId] = useState<string | null>(null);
 
+  // Primeiro contato (métricas de mensagens enviadas)
+  const [contactEvents, setContactEvents] = useState<ContactEvent[]>([]);
+
   useEffect(() => {
     (async () => {
       try {
@@ -158,6 +167,26 @@ export default function DashboardAdmin() {
           setUsersLoading(false);
         }
       })();
+    }
+  }, [view]);
+
+  useEffect(() => {
+    const since = new Date();
+    since.setDate(since.getDate() - 6);
+    fetchContactEvents(startOfLocalDay(since)).then(setContactEvents);
+  }, []);
+
+  useEffect(() => {
+    if (view === 'relatorios') {
+      const since = new Date();
+      since.setDate(since.getDate() - 120);
+      fetchContactEvents(startOfLocalDay(since)).then((data) => {
+        setContactEvents((prev) => {
+          const map = new Map(prev.map((e) => [`${e.user_id}|${e.created_at}`, e]));
+          data.forEach((e) => map.set(`${e.user_id}|${e.created_at}`, e));
+          return Array.from(map.values());
+        });
+      });
     }
   }, [view]);
 
@@ -313,6 +342,17 @@ export default function DashboardAdmin() {
     };
   }, [leads]);
 
+  const contactSeries = useMemo(() => buildDaySeries(contactEvents, 7), [contactEvents]);
+  const contactToday = useMemo(() => {
+    const grouped = groupByDay(contactEvents);
+    return grouped[toLocalISODate(new Date())] || 0;
+  }, [contactEvents]);
+  const contactWeek = useMemo(
+    () => contactSeries.reduce((acc, d) => acc + d.enviadas, 0),
+    [contactSeries],
+  );
+  const contactsByUserDay = useMemo(() => groupByUserAndDay(contactEvents), [contactEvents]);
+
   const byUser = useMemo(() => {
     const map = new Map<string, { owner: string; total: number; funil: number; vendas: number }>();
     leads.forEach((l) => {
@@ -431,6 +471,39 @@ export default function DashboardAdmin() {
             </CardContent>
           </Card>
         </div>
+
+        {view === 'geral' && (
+          <Card className="border-teal-500/30 bg-teal-500/[0.04] shadow-sm">
+            <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="w-10 h-10 rounded-xl bg-teal-500/15 flex items-center justify-center">
+                  <MessageCircle className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                </span>
+                <div>
+                  <p className="text-xs text-muted-foreground">Mensagens enviadas hoje</p>
+                  <p className="text-2xl font-bold text-foreground font-mono-num leading-tight">{contactToday}</p>
+                  <p className="text-[11px] text-muted-foreground">{contactWeek} nos últimos 7 dias</p>
+                </div>
+              </div>
+              <div className="flex-1 h-[72px] min-w-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={contactSeries} margin={{ top: 4, right: 4, bottom: 0, left: 4 }}>
+                    <Tooltip
+                      cursor={{ fill: 'rgba(20,184,166,0.08)' }}
+                      formatter={(v: number) => [`${v}`, 'Enviadas']}
+                      labelFormatter={(_l, payload) => {
+                        const d = payload?.[0]?.payload?.date as string | undefined;
+                        return d ? new Date(`${d}T00:00:00`).toLocaleDateString('pt-BR') : '';
+                      }}
+                    />
+                    <XAxis dataKey="label" hide />
+                    <Bar dataKey="enviadas" fill="#14b8a6" radius={[4, 4, 0, 0]} maxBarSize={26} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {view === 'geral' && (
           <div className="grid lg:grid-cols-2 gap-4">
@@ -1250,15 +1323,31 @@ export default function DashboardAdmin() {
                               <Badge variant="secondary" className="text-xs">
                                 {new Date(r.report_date + 'T00:00:00').toLocaleDateString('pt-BR')}
                               </Badge>
+                              <Badge
+                                variant="outline"
+                                className="text-[11px] gap-1 border-teal-500/40 text-teal-700 dark:text-teal-400 bg-teal-500/10"
+                              >
+                                <MessageCircle className="w-3 h-3" />
+                                {contactsByUserDay[`${r.user_id}__${r.report_date}`] || 0} mensagen{((contactsByUserDay[`${r.user_id}__${r.report_date}`] || 0) === 1) ? 'm' : 's'}
+                              </Badge>
                             </div>
                             <span className="text-muted-foreground text-xs">
                               {expandedReportId === r.id ? 'Ocultar' : 'Ver'}
                             </span>
                           </button>
                           {expandedReportId === r.id && (
-                            <p className="mt-3 text-sm text-foreground whitespace-pre-wrap border-t border-border pt-3">
-                              {r.content}
-                            </p>
+                            <div className="mt-3 border-t border-border pt-3 space-y-3">
+                              <p className="text-sm text-foreground whitespace-pre-wrap">{r.content}</p>
+                              <div className="flex items-center justify-between gap-3 rounded-lg border border-teal-500/30 bg-teal-500/[0.06] px-3 py-2">
+                                <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                                  <Lock className="w-3 h-3 text-teal-500" />
+                                  Registro automático — não editável pelo SDR
+                                </span>
+                                <span className="text-sm font-bold text-foreground font-mono-num">
+                                  {contactsByUserDay[`${r.user_id}__${r.report_date}`] || 0}
+                                </span>
+                              </div>
+                            </div>
                           )}
                         </div>
                       ))}
