@@ -4,7 +4,7 @@ import { StatusSelect } from './StatusSelect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Eye, MapPin, Phone, User2, PackageOpen, Trash2, ArrowRightLeft, CheckSquare, X,
+  Eye, MapPin, Phone, User2, PackageOpen, Trash2, ArrowRightLeft, CheckSquare, X, MessageCircle,
 } from 'lucide-react';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -25,6 +25,7 @@ interface Props {
   onDeleteLeads?: (ids: string[]) => void;
   onTransferLead?: (leadId: string, targetUserId: string, targetUserName: string) => void;
   onTransferLeads?: (ids: string[], targetUserId: string, targetUserName: string) => void;
+  onFirstContact?: (lead: Lead) => void;
 }
 
 const statusRowBg: Record<string, string> = {
@@ -58,7 +59,7 @@ function IconCell({ icon, value, onChange, className = '' }: { icon: React.React
 
 export function LeadsTable({
   leads, onOpenLead, onUpdateLead, role, users = [],
-  onDeleteLead, onDeleteLeads, onTransferLead, onTransferLeads,
+  onDeleteLead, onDeleteLeads, onTransferLead, onTransferLeads, onFirstContact,
 }: Props) {
   const isAdmin = role === 'admin';
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -261,6 +262,17 @@ export function LeadsTable({
                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-accent" onClick={() => onOpenLead(lead)} title="Ver detalhes">
                           <Eye className="w-4 h-4 text-muted-foreground" />
                         </Button>
+                        {onFirstContact && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 rounded-full hover:bg-gold-500/10"
+                            onClick={() => onFirstContact(lead)}
+                            title="Primeiro contato no WhatsApp"
+                          >
+                            <MessageCircle className="w-4 h-4 text-gold-500" />
+                          </Button>
+                        )}
                         {isAdmin && (
                           <>
                             <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-accent" onClick={() => { setTransferTarget(lead); setTransferUserId(lead.user_id || ''); }} title="Transferir">

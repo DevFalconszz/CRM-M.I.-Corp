@@ -8,6 +8,7 @@ import { LeadCard } from '@/components/LeadCard';
 import { LeadsKanban } from '@/components/LeadsKanban';
 import { LeadModal } from '@/components/LeadModal';
 import { AddLeadModal } from '@/components/AddLeadModal';
+import { FirstContactModal } from '@/components/FirstContact';
 import { Plus, Search, LayoutGrid, Table2, Columns, Filter, Loader2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,6 +28,7 @@ const Index = () => {
     state: '',
   });
   const [viewMode, setViewMode] = useState<'table' | 'cards' | 'kanban'>('table');
+  const [contactLead, setContactLead] = useState<Lead | null>(null);
   const isMobile = useIsMobile();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -247,7 +249,7 @@ const Index = () => {
         {loading ? (
           <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-gold-500" /></div>
         ) : viewMode === 'kanban' ? (
-          <LeadsKanban leads={filtered} onOpenLead={setSelectedLead} onUpdateLead={handleUpdateLead} />
+          <LeadsKanban leads={filtered} onOpenLead={setSelectedLead} onUpdateLead={handleUpdateLead} onFirstContact={setContactLead} />
         ) : viewMode === 'table' ? (
           <LeadsTable
               leads={filtered}
@@ -259,11 +261,12 @@ const Index = () => {
               onDeleteLeads={handleDeleteLeads}
               onTransferLead={handleTransferLead}
               onTransferLeads={handleTransferLeads}
+              onFirstContact={setContactLead}
             />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {filtered.map(lead => (
-              <LeadCard key={lead.id} lead={lead} onOpenLead={setSelectedLead} onUpdateLead={handleUpdateLead} />
+              <LeadCard key={lead.id} lead={lead} onOpenLead={setSelectedLead} onUpdateLead={handleUpdateLead} onFirstContact={setContactLead} />
             ))}
             {filtered.length === 0 && (
               <div className="col-span-full text-center py-16 text-muted-foreground">
@@ -277,6 +280,7 @@ const Index = () => {
 
       <LeadModal lead={selectedLead} open={!!selectedLead} onClose={() => setSelectedLead(null)} onUpdate={handleUpdateLead} />
       <AddLeadModal open={showAdd} onClose={() => setShowAdd(false)} onAdd={handleAddLead} />
+      <FirstContactModal lead={contactLead} onClose={() => setContactLead(null)} />
     </div>
   );
 };

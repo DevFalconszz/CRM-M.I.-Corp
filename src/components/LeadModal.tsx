@@ -14,6 +14,8 @@ import { adLibraryUrl, adLibraryQueryTerm } from '@/lib/ad-library';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { loadLeadReports, addLeadReport, updateLeadReport, deleteLeadReport } from '@/lib/leads-store';
+import { FirstContactComposer } from './FirstContact';
+import { getLastContact } from '@/lib/first-contact';
 import { toast } from 'sonner';
 import { initials, avatarColor } from '@/lib/avatars';
 
@@ -62,6 +64,7 @@ export function LeadModal({ lead, open, onClose, onUpdate }: Props) {
   const [expandedReport, setExpandedReport] = useState<string | null>(null);
   const [editingReport, setEditingReport] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState('');
+  const [showContact, setShowContact] = useState(false);
 
   useEffect(() => {
     if (open && lead) {
@@ -73,6 +76,7 @@ export function LeadModal({ lead, open, onClose, onUpdate }: Props) {
       setNewReport('');
       setExpandedReport(null);
       setEditingReport(null);
+      setShowContact(false);
       loadLeadReports(lead.id).then(setReports);
     }
   }, [open, lead]);
@@ -163,7 +167,29 @@ export function LeadModal({ lead, open, onClose, onUpdate }: Props) {
               {lead.city && <span className="inline-flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{lead.city}{lead.state ? `, ${lead.state}` : ''}</span>}
             </div>
           </div>
+          <Button
+            size="sm"
+            className="h-9 rounded-xl text-xs font-semibold bg-gold-500 text-black hover:bg-gold-600 shrink-0"
+            onClick={() => setShowContact((v) => !v)}
+          >
+            <MessageCircle className="w-3.5 h-3.5 mr-1.5" />
+            {showContact ? 'Fechar contato' : 'Primeiro contato'}
+          </Button>
         </div>
+
+        {showContact && (
+          <div className="mt-3 sm:mt-4 rounded-xl border border-gold-500/30 bg-gold-500/[0.03] p-3 sm:p-4">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <SectionTitle icon={MessageCircle}>Primeiro contato</SectionTitle>
+              {getLastContact(lead.id) && (
+                <span className="text-[11px] text-muted-foreground">
+                  Último envio: {new Date(getLastContact(lead.id)!.at).toLocaleString('pt-BR')}
+                </span>
+              )}
+            </div>
+            <FirstContactComposer lead={lead} inline />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4">
           {/* Coluna esquerda */}

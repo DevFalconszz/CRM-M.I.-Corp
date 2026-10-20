@@ -1,7 +1,7 @@
 import { Lead, STATUS_LABELS, LeadStatus } from '@/lib/types';
 import { StatusBadge } from './StatusBadge';
 import { Button } from '@/components/ui/button';
-import { Pencil, MapPin, Phone, User, Building2, ClipboardList } from 'lucide-react';
+import { Pencil, MapPin, Phone, User, Building2, ClipboardList, MessageCircle } from 'lucide-react';
 import { initials, avatarColor } from '@/lib/avatars';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +9,7 @@ interface Props {
   leads: Lead[];
   onOpenLead: (lead: Lead) => void;
   onUpdateLead: (lead: Lead) => void;
+  onFirstContact?: (lead: Lead) => void;
 }
 
 const COLUMNS: { key: LeadStatus; title: string; className: string }[] = [
@@ -21,7 +22,7 @@ const COLUMNS: { key: LeadStatus; title: string; className: string }[] = [
   { key: 'recusado', title: STATUS_LABELS['recusado'], className: 'border-red-500/40 bg-red-500/[0.02]' },
 ];
 
-export function LeadsKanban({ leads, onOpenLead, onUpdateLead }: Props) {
+export function LeadsKanban({ leads, onOpenLead, onUpdateLead, onFirstContact }: Props) {
   const grouped = leads.reduce<Record<string, Lead[]>>((acc, lead) => {
     const key = lead.status;
     if (!acc[key]) acc[key] = [];
@@ -126,15 +127,26 @@ export function LeadsKanban({ leads, onOpenLead, onUpdateLead }: Props) {
                     </div>
                   )}
 
-                  <div className="mt-2">
+                  <div className="mt-2 flex gap-1.5">
                     <Button
                       size="sm"
                       variant="outline"
-                      className="w-full h-8 text-xs border-input hover:border-gold-500"
+                      className="flex-1 h-8 text-xs border-input hover:border-gold-500"
                       onClick={() => onOpenLead(lead)}
                     >
                       <Pencil className="w-3.5 h-3.5 mr-1" /> Editar
                     </Button>
+                    {onFirstContact && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 w-8 p-0 border-input hover:border-gold-500"
+                        onClick={() => onFirstContact(lead)}
+                        title="Primeiro contato no WhatsApp"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}

@@ -1,13 +1,14 @@
 import { Lead } from '@/lib/types';
 import { StatusSelect } from './StatusSelect';
 import { Button } from '@/components/ui/button';
-import { MapPin, Phone, Pencil, User, Building2, ClipboardList } from 'lucide-react';
+import { MapPin, Phone, Pencil, User, Building2, ClipboardList, MessageCircle } from 'lucide-react';
 import { initials, avatarColor } from '@/lib/avatars';
 
 interface Props {
   lead: Lead;
   onOpenLead: (lead: Lead) => void;
   onUpdateLead: (lead: Lead) => void;
+  onFirstContact?: (lead: Lead) => void;
 }
 
 const statusCardBorder: Record<string, string> = {
@@ -20,7 +21,7 @@ const statusCardBorder: Record<string, string> = {
   venda_fechada: 'border-l-4 border-l-emerald-500',
 };
 
-export function LeadCard({ lead, onOpenLead, onUpdateLead }: Props) {
+export function LeadCard({ lead, onOpenLead, onUpdateLead, onFirstContact }: Props) {
   const borderClass = statusCardBorder[lead.status] || 'border-l-4 border-l-transparent';
 
   return (
@@ -52,8 +53,19 @@ export function LeadCard({ lead, onOpenLead, onUpdateLead }: Props) {
         </div>
       )}
 
-      <div className="mt-3">
-        <Button size="sm" className="w-full h-10 text-sm bg-gold-500 text-black hover:bg-gold-600" onClick={() => onOpenLead(lead)}><Pencil className="w-4 h-4 mr-1.5" /> Editar</Button>
+      <div className="mt-3 flex gap-2">
+        <Button size="sm" className="flex-1 h-10 text-sm bg-gold-500 text-black hover:bg-gold-600" onClick={() => onOpenLead(lead)}><Pencil className="w-4 h-4 mr-1.5" /> Editar</Button>
+        {onFirstContact && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-10 w-10 p-0 border-input hover:border-gold-500"
+            onClick={() => onFirstContact(lead)}
+            title="Primeiro contato no WhatsApp"
+          >
+            <MessageCircle className="w-4 h-4" />
+          </Button>
+        )}
       </div>
     </div>
   );
