@@ -36,7 +36,7 @@ export function ChangePasswordForm({ onSuccess, submitLabel = 'Salvar nova senha
       if (error) {
         toast.error(error.message);
       } else {
-        toast.success('Senha alterada com sucesso!');
+        toast.success('Senha alterada! Entre novamente com a nova senha.');
         setPassword('');
         setConfirm('');
         onSuccess();

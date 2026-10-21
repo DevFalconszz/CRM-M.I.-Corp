@@ -272,7 +272,7 @@ export default function DashboardAdmin() {
       setSelectedUser(null);
       toast.success(
         editUser.password
-          ? 'Usuário atualizado e senha redefinida com sucesso.'
+          ? 'Senha redefinida. As sessões do usuário serão encerradas.'
           : 'Usuário atualizado com sucesso.'
       );
     } catch (e: any) {
@@ -1267,7 +1267,7 @@ export default function DashboardAdmin() {
                         </button>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
-                        O usuário poderá entrar com essa nova senha na próxima vez que fizer login.
+                        O usuário será desconectado imediatamente e deverá entrar com essa nova senha.
                       </p>
                     </div>
                     <div className="flex justify-end gap-2 pt-4">
